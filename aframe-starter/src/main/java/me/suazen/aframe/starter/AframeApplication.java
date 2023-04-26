@@ -5,8 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 import me.suazen.aframe.framework.core.restful.annotation.RestfulScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
+@EnableAsync
 @ComponentScan({"me.suazen.aframe"})
 @RestfulScan({"me.suazen.aframe"})
 public class AframeApplication {

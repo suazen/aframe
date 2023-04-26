@@ -1,12 +1,12 @@
 package me.suazen.aframe.framework.core.restful;
 
-import java.util.Map;
-import java.util.Set;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.HashMap;
-
-import org.springframework.core.env.Environment;
+import cn.hutool.core.util.StrUtil;
+import me.suazen.aframe.framework.core.restful.annotation.Get;
+import me.suazen.aframe.framework.core.restful.annotation.Post;
+import me.suazen.aframe.framework.core.restful.annotation.Restful;
+import me.suazen.aframe.framework.core.restful.annotation.RestfulScan;
+import me.suazen.aframe.framework.core.restful.domain.RestMapping;
+import me.suazen.aframe.framework.core.restful.exception.RestMappingConflictException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -14,21 +14,23 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import me.suazen.aframe.framework.core.restful.annotation.Get;
-import me.suazen.aframe.framework.core.restful.annotation.Post;
-import me.suazen.aframe.framework.core.restful.annotation.Restful;
-import me.suazen.aframe.framework.core.restful.annotation.RestfulScan;
-import me.suazen.aframe.framework.core.restful.exception.RestNotFoundException;
+import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
-    private static final Map<String, String> getMap = new HashMap<>();
-    private static final Map<String, String> postMap = new HashMap<>();
+    private static final Map<String, RestMapping> getMap = new HashMap<>();
+    private static final Map<String, RestMapping> postMap = new HashMap<>();
 
     /**
      * 资源加载器
@@ -54,7 +56,7 @@ public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceL
 
         // 遍历每一个basePackages
         for (String basePackage : basePackages) {
-            // 通过scanner获取basePackage下的候选类(有标@SimpleRpcClient注解的类)
+            // 通过scanner获取basePackage下的候选类(有标@Restful注解的类)
             Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
             // 遍历每一个候选类，如果符合条件就把他们注册到容器
             for (BeanDefinition candidateComponent : candidateComponents) {
@@ -68,15 +70,37 @@ public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceL
                     for (Method method : methods) {
                         if (method.isAnnotationPresent(Get.class)) {
                             Get get = method.getAnnotation(Get.class);
-                            getMap.put(restful.value() + get.url(), get.sql());
+                            String path = concatPath(restful.value(),get.value(),get.path());
+                            if (getMap.containsKey(path)){
+                                throw new RestMappingConflictException(String.format("接口路径已存在:%s %s",method,path));
+                            }
+                            getMap.put(path,
+                                    new RestMapping(beanClass, method, get.contentType().toString(Charset.defaultCharset()), get.returnType()));
                         } else if (method.isAnnotationPresent(Post.class)) {
                             Post post = method.getAnnotation(Post.class);
-                            postMap.put(restful.value() + post.url(), post.sql());
+                            String path = concatPath(restful.value(),post.value(),post.path());
+                            if (postMap.containsKey(path)){
+                                throw new RestMappingConflictException(String.format("接口路径已存在:%s %s",method,path));
+                            }
+                            postMap.put(path,
+                                    new RestMapping(beanClass, method, post.contentType().toString(Charset.defaultCharset()), post.returnType()));
                         }
                     }
                 }
             }
         }
+    }
+
+    private String concatPath(String... paths){
+        StringBuilder builder = new StringBuilder();
+        for (String path:paths){
+            if (StrUtil.isBlank(path)){
+                continue;
+            }
+            builder.append(path.startsWith("/")?"":"/")
+                    .append(path.endsWith("/")?path.substring(0,path.length()-1):path);
+        }
+        return builder.toString();
     }
 
     private Class<?> getBeanClass(BeanDefinition beanDefinition) {
@@ -141,12 +165,12 @@ public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceL
         this.resourceLoader = resourceLoader;
     }
 
-    public static String getRestfulSql(RequestMethod method, String url) {
+    public static RestMapping getRestMapping(RequestMethod method, String url) {
         if (method == RequestMethod.GET) {
             return getMap.get(url);
         } else if (method == RequestMethod.POST) {
             return postMap.get(url);
         }
-        throw new RestNotFoundException(String.format("url not found: %s",url));
+        return null;
     }
 }
