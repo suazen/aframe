@@ -10,3 +10,6 @@ spring:
     host: 121.37.3.24
     port: 6379
     password: admin123
+
+restful:
+  enable: true

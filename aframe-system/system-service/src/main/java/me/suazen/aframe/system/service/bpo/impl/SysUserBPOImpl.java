@@ -24,7 +24,7 @@ public class SysUserBPOImpl implements SysUserBPO {
     public void Register() {
         SysUser user = new SysUser();
         user.setUsername("admin");
-        redissonClient.getBucket("sysUser").set(user);
+        redissonClient.getBucket("user:1").set(user);
         redissonClient.getRemoteService("aframe").register(SysUserBPO.class,this);
     }
 

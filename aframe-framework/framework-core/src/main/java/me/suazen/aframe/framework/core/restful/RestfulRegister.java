@@ -13,9 +13,12 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
@@ -23,14 +26,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware {
+public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, EnvironmentAware, Condition {
     private static final Map<String, RestMapping> getMap = new HashMap<>();
     private static final Map<String, RestMapping> postMap = new HashMap<>();
+
+    private static final String REST_PROP_ENABLE = "restful.enable";
+    private static final String REST_PROP_PREFIX = "restful.prefix";
 
     /**
      * 资源加载器
@@ -40,6 +44,14 @@ public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceL
      * 环境
      */
     private Environment environment;
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        if (context.getEnvironment().containsProperty(REST_PROP_ENABLE)){
+            return Boolean.TRUE.equals(context.getEnvironment().getProperty(REST_PROP_ENABLE, boolean.class));
+        }
+        return true;
+    }
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
@@ -92,8 +104,11 @@ public class RestfulRegister implements ImportBeanDefinitionRegistrar, ResourceL
     }
 
     private String concatPath(String... paths){
+        String prefix = environment.getProperty(REST_PROP_PREFIX);
+        List<String> pathList = Arrays.stream(paths).collect(Collectors.toList());
+        pathList.add(0,prefix);
         StringBuilder builder = new StringBuilder();
-        for (String path:paths){
+        for (String path : pathList){
             if (StrUtil.isBlank(path)){
                 continue;
             }

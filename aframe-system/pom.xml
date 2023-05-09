@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>me.suazen</groupId>
-        <artifactId>aframe</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <artifactId>aframe-parent</artifactId>
+        <version>0.0.1</version>
+        <relativePath>../aframe-parent</relativePath>
     </parent>
 
     <artifactId>aframe-system</artifactId>
