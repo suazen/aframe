@@ -9,12 +9,7 @@
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>aframe-framework</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>aframe-framework-core</module>
-        <module>aframe-framework-web</module>
-    </modules>
+    <artifactId>aframe-auth</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -22,4 +17,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>me.suazen</groupId>
+            <artifactId>aframe-framework-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

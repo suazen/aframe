@@ -3,14 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>me.suazen</groupId>
-        <artifactId>aframe-parent</artifactId>
-        <version>0.0.1</version>
-        <relativePath>../aframe-parent</relativePath>
-    </parent>
 
+    <groupId>me.suazen</groupId>
     <artifactId>aframe-starter</artifactId>
+    <version>0.0.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -21,12 +17,12 @@
     <dependencies>
         <dependency>
             <groupId>me.suazen</groupId>
-            <artifactId>system-service</artifactId>
+            <artifactId>aframe-system-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>me.suazen</groupId>
-            <artifactId>framework-security</artifactId>
+            <artifactId>aframe-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -40,26 +36,49 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
+                <version>2.7.6</version>
                 <configuration>
                     <mainClass>me.suazen.aframe.starter.AframeApplication</mainClass>
-                    <skip>true</skip>
+                    <!--打包时去除其他模块-->
+                    <layout>ZIP</layout>
+                    <excludeGroupIds>me.suazen</excludeGroupIds>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--拷贝第三方依赖文件到指定目录-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/aframe-lib</outputDirectory>
+                            <excludeScope>provided</excludeScope>
+                            <!-- 配置的作用：跳过复制第三方依赖这一步。这是在首次上传
+                                  第三方依赖到服务器之后，启用这个选项，可以不用在打包时
+                                  重复复制，节省时间。-->
+                            <skip>false</skip>
+                            <includeGroupIds>me.suazen</includeGroupIds>
+<!--                            <includeScope>runtime</includeScope>-->
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

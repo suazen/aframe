@@ -5,16 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>me.suazen</groupId>
-        <artifactId>aframe-parent</artifactId>
+        <artifactId>aframe</artifactId>
         <version>0.0.1</version>
-        <relativePath>../aframe-parent</relativePath>
     </parent>
 
     <artifactId>aframe-system</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>system-core</module>
-        <module>system-service</module>
+        <module>aframe-system-core</module>
+        <module>aframe-system-service</module>
     </modules>
 
     <properties>
