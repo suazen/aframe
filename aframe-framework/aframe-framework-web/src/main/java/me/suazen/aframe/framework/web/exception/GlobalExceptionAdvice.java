@@ -1,5 +1,6 @@
 package me.suazen.aframe.framework.web.exception;
 
+import cn.dev33.satoken.exception.SaTokenException;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.framework.core.domain.AjaxResult;
@@ -39,6 +40,8 @@ public class GlobalExceptionAdvice {
                 return AjaxResult.fail(msg);
             }
             return AjaxResult.fail("参数校验失败");
+        }else if (e instanceof SaTokenException){
+            return AjaxResult.fail(e.getMessage());
         }
         String msg = ExceptionUtil.getMessage(e);
         log.error(msg,e);

@@ -23,5 +23,10 @@
             <artifactId>aframe-framework-web</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>me.suazen</groupId>
+            <artifactId>aframe-system-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

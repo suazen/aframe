@@ -9,8 +9,8 @@ public class BaseException extends RuntimeException{
         super();
     }
 
-    public BaseException(String message) {
-        super(message);
+    public BaseException(String message,String... args) {
+        super(String.format(message,args));
     }
 
     public BaseException(String message, Throwable cause) {

@@ -1,28 +1,30 @@
 package me.suazen.aframe.system.core.entity;
 
-import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
-import com.mybatisflex.annotation.Table;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import me.suazen.aframe.framework.core.mybatisflex.listener.DefaultInsertListener;
-import me.suazen.aframe.framework.core.mybatisflex.listener.DefaultUpdateListener;
 
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(value = "sys_user", onInsert = DefaultInsertListener.class, onUpdate = DefaultUpdateListener.class)
+/**
+ * <p>
+ * 用户表
+ * </p>
+ *
+ * @author sujizhen
+ * @since 2023-06-12
+ */
+@Getter
+@Setter
+@TableName("sys_user")
 public class SysUser implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 用户id
      */
-    @Id(keyType = KeyType.Generator, value = "uuid")
+    @TableId(type = IdType.ASSIGN_UUID)
     private String userId;
 
     /**
@@ -31,14 +33,39 @@ public class SysUser implements Serializable {
     private String username;
 
     /**
-     * 登录名称
-     */
-    private String loginName;
-
-    /**
      * 用户密码
      */
     private String password;
+
+    /**
+     * 用户昵称
+     */
+    private String nickname;
+
+    /**
+     * 微信id
+     */
+    private String wxId;
+
+    /**
+     * 性别
+     */
+    private String sex;
+
+    /**
+     * 省份
+     */
+    private String province;
+
+    /**
+     * 城市
+     */
+    private String city;
+
+    /**
+     * 头像
+     */
+    private String avatar;
 
     /**
      * 上次登录IP
@@ -51,23 +78,14 @@ public class SysUser implements Serializable {
     private String loginDate;
 
     /**
-     * 创建者
-     */
-    private String creator;
-
-    /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private String createTime;
-
-    /**
-     * 更新者
-     */
-    private String updater;
 
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateTime;
-
 }
