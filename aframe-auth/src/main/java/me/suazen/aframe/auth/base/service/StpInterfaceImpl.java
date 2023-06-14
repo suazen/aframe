@@ -33,7 +33,12 @@ public class StpInterfaceImpl implements StpInterface {
             permissionList.addAll(list);
         }
 
-        // 3. 返回权限码集合
+        // 3. admin账号拥有全部权限
+        if ("1".equals(loginId)) {
+            permissionList.add("*");
+        }
+
+        // 4. 返回权限码集合
         return permissionList;
     }
 

@@ -32,7 +32,6 @@ public abstract class BaseLoginService {
         user.setLoginDate(DateUtil.nowSimple());
         user.setLoginIp(IpUtils.getIpAddr(ServletUtil.getRequest()));
         sysUserMapper.updateById(user);
-        SaSession session = StpUtil.getSession();
-        session.set("user",user);
+        StpUtil.getSession().set(SaSession.USER,user);
     }
 }

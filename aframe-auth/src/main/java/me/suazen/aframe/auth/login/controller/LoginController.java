@@ -1,15 +1,16 @@
 package me.suazen.aframe.auth.login.controller;
 
+import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson2.JSONObject;
+import me.suazen.aframe.auth.base.dto.UserInfo;
 import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.framework.core.domain.AjaxResult;
+import me.suazen.aframe.system.core.entity.SysUser;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author sujizhen
@@ -25,6 +26,17 @@ public class LoginController {
             return AjaxResult.fail("Method Not Found");
         }
         return AjaxResult.success(loginService.login(loginBody));
+    }
+
+    @GetMapping("/getInfo")
+    public AjaxResult getInfo(){
+        SaSession session = StpUtil.getSession();
+        if (session.get(SaSession.USER) == null){
+            String userId = (String) StpUtil.getLoginId();
+            SysUser user = new SysUser().userId().eq(userId).one();
+            session.set(SaSession.USER, BeanUtil.toBean(user, UserInfo.class));
+        }
+        return AjaxResult.success(session.get(SaSession.USER));
     }
 
     @PostMapping("/logout")
