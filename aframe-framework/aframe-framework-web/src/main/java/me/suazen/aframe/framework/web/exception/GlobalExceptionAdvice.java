@@ -1,9 +1,12 @@
 package me.suazen.aframe.framework.web.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.SaTokenException;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.suazen.aframe.framework.core.domain.AjaxResult;
+import me.suazen.aframe.framework.web.constants.ResponseCode;
+import me.suazen.aframe.framework.web.domain.AjaxResult;
 import me.suazen.aframe.framework.core.exception.BusinessException;
 import me.suazen.aframe.framework.core.util.ExceptionUtil;
 import org.springframework.validation.BindingResult;
@@ -29,7 +32,7 @@ public class GlobalExceptionAdvice {
         if (e instanceof BusinessException){
             String msg = ExceptionUtil.getMessage(e);
             log.error(msg);
-            return AjaxResult.fail(msg);
+            return AjaxResult.error(msg);
         } else if (e instanceof MethodArgumentNotValidException) {
             MethodArgumentNotValidException ex = (MethodArgumentNotValidException)e;
             BindingResult bindingResult = ex.getBindingResult();
@@ -37,14 +40,18 @@ public class GlobalExceptionAdvice {
                     .map(fieldError-> StrUtil.blankToDefault(fieldError.getDefaultMessage(),"参数\""+fieldError.getField()+"\"校验失败"))
                     .collect(Collectors.joining(", "));
             if (StrUtil.isNotBlank(msg)) {
-                return AjaxResult.fail(msg);
+                return AjaxResult.of(ResponseCode.BAD_REQUEST).setMsg(msg);
             }
-            return AjaxResult.fail("参数校验失败");
+            return AjaxResult.of(ResponseCode.BAD_REQUEST);
+        }else if (e instanceof NotLoginException){
+            return AjaxResult.of(ResponseCode.UNAUTHORIZED).setMsg(e.getMessage());
+        }else if (e instanceof NotPermissionException){
+            return AjaxResult.of(ResponseCode.FORBIDDEN).setMsg(e.getMessage());
         }else if (e instanceof SaTokenException){
-            return AjaxResult.fail(e.getMessage());
+            return AjaxResult.error(e.getMessage());
         }
         String msg = ExceptionUtil.getMessage(e);
         log.error(msg,e);
-        return AjaxResult.fail(msg);
+        return AjaxResult.error(msg);
     }
 }

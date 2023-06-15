@@ -3,7 +3,7 @@ package me.suazen.aframe.framework.web.restful.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import me.suazen.aframe.framework.core.domain.IResult;
+import me.suazen.aframe.framework.web.domain.IResult;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

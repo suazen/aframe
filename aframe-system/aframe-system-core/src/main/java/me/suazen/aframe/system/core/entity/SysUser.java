@@ -1,6 +1,7 @@
 package me.suazen.aframe.system.core.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,6 +36,7 @@ public class SysUser implements Serializable {
     /**
      * 用户密码
      */
+    @JsonIgnore
     private String password;
 
     /**

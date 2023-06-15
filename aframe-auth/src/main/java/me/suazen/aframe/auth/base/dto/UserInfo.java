@@ -2,17 +2,26 @@ package me.suazen.aframe.auth.base.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.suazen.aframe.system.core.entity.SysUser;
+
+import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
-public class UserInfo {
-    private String userId;
+public class UserInfo implements Serializable {
+//    private String userId;
+//
+//    private String username;
+//
+//    private String nickname;
+//
+//    private String avatar;
+//
+//    private String sex;
+    private SysUser user;
 
-    private String username;
+    private List<String> roles;
 
-    private String nickname;
-
-    private String avatar;
-
-    private String sex;
+    private List<String> permissions;
 }

@@ -1,8 +1,8 @@
 package me.suazen.aframe.framework.web.restful.annotation;
 
 import cn.hutool.http.ContentType;
-import me.suazen.aframe.framework.core.domain.AjaxResult;
-import me.suazen.aframe.framework.core.domain.IResult;
+import me.suazen.aframe.framework.web.domain.AjaxResult;
+import me.suazen.aframe.framework.web.domain.IResult;
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Documented;

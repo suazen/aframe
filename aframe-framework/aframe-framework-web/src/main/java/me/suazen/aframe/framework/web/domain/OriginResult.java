@@ -1,4 +1,4 @@
-package me.suazen.aframe.framework.core.domain;
+package me.suazen.aframe.framework.web.domain;
 
 /**
  * @author sujizhen

@@ -3,6 +3,7 @@ package me.suazen.aframe.auth.base.service;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson2.JSONObject;
+import me.suazen.aframe.auth.base.dto.UserInfo;
 import me.suazen.aframe.framework.core.util.DateUtil;
 import me.suazen.aframe.framework.web.util.IpUtils;
 import me.suazen.aframe.framework.web.util.ServletUtil;
@@ -32,6 +33,15 @@ public abstract class BaseLoginService {
         user.setLoginDate(DateUtil.nowSimple());
         user.setLoginIp(IpUtils.getIpAddr(ServletUtil.getRequest()));
         sysUserMapper.updateById(user);
-        StpUtil.getSession().set(SaSession.USER,user);
+
+        StpUtil.getSession().set(SaSession.USER, getUserInfo(user));
+    }
+
+    public static UserInfo getUserInfo(SysUser user){
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUser(user);
+        userInfo.setRoles(StpUtil.getRoleList());
+        userInfo.setPermissions(StpUtil.getPermissionList());
+        return userInfo;
     }
 }

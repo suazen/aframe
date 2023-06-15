@@ -12,6 +12,7 @@ import me.suazen.aframe.system.core.entity.SysUserRole;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,9 @@ public class StpInterfaceImpl implements StpInterface {
                 .roleId().eq(roleId)
                 .list();
         List<String> permIdList = rolePermList.stream().map(SysRoleMenu::getMenuId).collect(Collectors.toList());
+        if (permIdList.isEmpty()){
+            return Collections.emptyList();
+        }
         List<SysMenu> permList = new SysMenu().select(SysMenu.PERMS)
                 .menuType().eq(Constant.MENU_TYPE_ANNIU)
                 .menuId().in(permIdList)
@@ -69,6 +73,9 @@ public class StpInterfaceImpl implements StpInterface {
         List<String> roleIdList = userRoleList.stream()
                 .map(SysUserRole::getRoleId)
                 .collect(Collectors.toList());
+        if (roleIdList.isEmpty()){
+            return Collections.emptyList();
+        }
         List<SysRole> roleList = new SysRole().select(SysRole.ROLEKEY)
                 .roleId().in(roleIdList)
                 .list();

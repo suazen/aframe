@@ -14,8 +14,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.framework.web.exception.GlobalExceptionAdvice;
-import me.suazen.aframe.framework.core.domain.AjaxResult;
-import me.suazen.aframe.framework.core.domain.IResult;
+import me.suazen.aframe.framework.web.domain.AjaxResult;
+import me.suazen.aframe.framework.web.domain.IResult;
 import me.suazen.aframe.framework.core.util.ExceptionUtil;
 import me.suazen.aframe.framework.web.restful.domain.RestMapping;
 import me.suazen.aframe.framework.web.restful.RestfulRegister;
@@ -63,7 +63,7 @@ public class RestfulInterceptor implements HandlerInterceptor {
             return false;
         }catch (Exception e){
             log.error(e.getMessage(),e);
-            writeJSON(response,AjaxResult.fail(ExceptionUtil.getMessage(e,false)),CONTENT_TYPE_JSON);
+            writeJSON(response,AjaxResult.error(ExceptionUtil.getMessage(e,false)),CONTENT_TYPE_JSON);
             return false;
         }
     }
