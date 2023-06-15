@@ -33,6 +33,9 @@ public class AutoPrefixUrlMapping extends RequestMappingHandlerMapping {
         if (m.find()){
             prefix = m.group(1);
         }
+        if ("starter".equals(prefix)){
+            return "";
+        }
         return prefix;
     }
 }

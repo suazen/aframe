@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class AuthWebConfigure implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SaInterceptor(handle-> StpUtil.checkLogin()))
+        registry.addInterceptor(new SaInterceptor(handle-> StpUtil.checkLogin()).isAnnotation(true))
                 .addPathPatterns("/**")
                 .excludePathPatterns("/auth/*/login");
     }

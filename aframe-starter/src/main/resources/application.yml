@@ -27,3 +27,10 @@ restful:
 wechat:
   appId: wxe5385dfbe65dfb59
   secret: 724bb3aa40a87c50796075d21b1f34cf
+
+openai:
+  azure:
+    end-point: echo-gpt
+    model: gpt-35-turbo
+    version: 2023-05-15
+    api-key: 0889c689e0ec41858811af4bad2cdf16
