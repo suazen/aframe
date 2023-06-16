@@ -1,0 +1,24 @@
+package me.suazen.aframe.starter.common.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serializable;
+
+@Setter
+@Getter
+@AllArgsConstructor
+public class ChatMessage implements Serializable {
+    private String role;
+
+    private String content;
+
+    public static ChatMessage userMsg(String content){
+        return new ChatMessage("user",content);
+    }
+
+    public static ChatMessage botMsg(String content){
+        return new ChatMessage("assistant",content);
+    }
+}

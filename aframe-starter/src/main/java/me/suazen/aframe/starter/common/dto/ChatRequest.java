@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 public class ChatRequest implements Serializable {
-    private List<MessageDTO> messages;
+    private List<ChatMessage> messages;
 
     private boolean stream;
 
@@ -25,14 +25,6 @@ public class ChatRequest implements Serializable {
     public ChatRequest(boolean stream){
         this.messages = new ArrayList<>();
         this.stream = stream;
-    }
-
-    public ChatRequest addMessage(MessageDTO message){
-        if (messages == null){
-            messages = new ArrayList<>();
-        }
-        this.messages.add(message);
-        return this;
     }
 
     @Override

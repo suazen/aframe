@@ -1,5 +1,6 @@
 package me.suazen.aframe.starter.common.dto;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +29,6 @@ public class GptStreamResponse {
 
         private String finish_reason;
 
-        private Map<String,String> delta;
+        private JSONObject delta;
     }
 }

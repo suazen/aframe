@@ -117,7 +117,7 @@ public class SseClient {
                 // 处理数据接口
                 eventHandler.readStream(line);
             }
-            // 当服务器端主动关闭的时候，客户端无法获取到信号。现在还不清楚原因。所以无法执行的此处。
+            eventHandler.onComplete();
             reader.close();
         } catch (IOException e) {
             log.error("SSE数据流读取失败");
