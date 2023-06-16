@@ -2,20 +2,21 @@ package me.suazen.aframe.framework.web.sse;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.suazen.aframe.framework.web.sse.exception.SseClientException;
+import me.suazen.aframe.framework.web.domain.AjaxResult;
 import me.suazen.aframe.framework.web.sse.handler.StreamEventHandler;
+import org.springframework.util.StreamUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class SseClient {
     private final String url;
-
-    private InputStream sseInputStream;
 
     private String method;
 
@@ -81,10 +82,11 @@ public class SseClient {
         return this;
     }
 
-    public SseClient execute(){
+    public void execute(StreamEventHandler eventHandler){
+        HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(this.url);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
             // 这儿根据自己的情况选择get或post
             urlConnection.setRequestMethod(method);
             urlConnection.setDoOutput(doOutput);
@@ -96,53 +98,44 @@ public class SseClient {
             urlConnection.setReadTimeout(timeout);
             urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             this.headers.forEach(urlConnection::setRequestProperty);
-            this.writeBody(urlConnection);
+            this.writeBody(urlConnection,eventHandler);
             InputStream inputStream = urlConnection.getInputStream();
-            this.sseInputStream = new BufferedInputStream(inputStream);
+            readStream(inputStream,eventHandler);
         }catch (IOException e){
-            log.error("SSE连接建立失败");
-            throw new SseClientException("SSE连接建立失败："+e.getMessage(),e);
+            log.error("SSE请求失败",e);
+            try {
+                eventHandler.writeError(StreamUtils.copyToString(Objects.requireNonNull(urlConnection).getErrorStream(), StandardCharsets.UTF_8));
+            }catch (NullPointerException | IOException ex){
+                eventHandler.writeError(e.getMessage());
+            }
         }
-        return this;
     }
 
-    public void readStream(StreamEventHandler eventHandler){
-        if (this.sseInputStream == null){
-            throw new SseClientException("请先调用execute方法");
+    private void readStream(InputStream inputStream,StreamEventHandler eventHandler) throws IOException{
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // 处理数据接口
+            eventHandler.readStream(line);
         }
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(this.sseInputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // 处理数据接口
-                eventHandler.readStream(line);
-            }
-            eventHandler.onComplete();
-            reader.close();
-        } catch (IOException e) {
-            log.error("SSE数据流读取失败");
-            throw new SseClientException("SSE数据流读取失败："+e.getMessage(),e);
-        }
+        eventHandler.onComplete();
+        reader.close();
     }
 
     /**
      * 写body
      * @param conn
      */
-    private void writeBody(HttpURLConnection conn) {
+    private void writeBody(HttpURLConnection conn,StreamEventHandler eventHandler) throws IOException{
         if (StrUtil.isEmpty(this.body)){
             return;
         }
-        try {
-            byte[] dataBytes = this.body.getBytes();
-            conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
-            OutputStream os = conn.getOutputStream();
-            os.write(dataBytes);
-            os.flush();
-            os.close();
-        } catch(Exception e) {
-            log.error("SSE请求Body写入失败");
-            throw new SseClientException("SSE请求Body写入失败："+e.getMessage(),e);
-        }
+        log.info("body：{}",this.body);
+        byte[] dataBytes = this.body.getBytes();
+        conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
+        OutputStream os = conn.getOutputStream();
+        os.write(dataBytes);
+        os.flush();
+        os.close();
     }
 }

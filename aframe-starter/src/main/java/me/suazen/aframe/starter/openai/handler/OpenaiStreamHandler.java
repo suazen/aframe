@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.framework.core.exception.BaseException;
 import me.suazen.aframe.framework.web.sse.handler.StreamEventHandler;
+import me.suazen.aframe.framework.web.util.ServletUtil;
 import me.suazen.aframe.starter.common.dto.GptStreamResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -55,6 +56,12 @@ public class OpenaiStreamHandler implements StreamEventHandler {
             this.contentBuilder = null;
             throw new BaseException("Openai流输出失败："+e.getMessage(),e);
         }
+    }
+
+    @Override
+    public void writeError(String json) {
+        response.setStatus(500);
+        ServletUtil.write(response,json,"application/json;charset=UTF-8");
     }
 
     @Override

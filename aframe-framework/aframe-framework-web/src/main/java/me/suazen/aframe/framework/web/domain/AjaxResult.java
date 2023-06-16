@@ -1,5 +1,6 @@
 package me.suazen.aframe.framework.web.domain;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -63,5 +64,10 @@ public class AjaxResult implements IResult,Serializable {
         }
         ((JSONObject)this.data).put(key,data);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }
