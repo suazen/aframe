@@ -46,7 +46,7 @@ public class OpenaiServiceImpl implements OpenaiService {
         //如果有content则添加，没有表示重新回答
         if (StrUtil.isNotBlank(dto.getContent())) {
             messages.add(ChatMessage.userMsg(dto.getContent().trim()));
-            AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"user",dto.getContent(),messages.size()-1));
+            AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
         }
         //调用openai接口
         AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages),streamHandler);
