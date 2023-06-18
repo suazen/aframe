@@ -23,25 +23,21 @@ public abstract class BaseLoginService {
     public String login(JSONObject loginBody){
         SysUser user = doCheck(loginBody);
         StpUtil.login(user.getUserId());
-        saveUserSession(user);
+        doAfterLogin(loginBody,user);
         return StpUtil.getTokenValue();
     };
 
     protected abstract SysUser doCheck(JSONObject loginBody);
+
+    protected void doAfterLogin(JSONObject body,SysUser user){
+        saveUserSession(user);
+    }
 
     private void saveUserSession(SysUser user){
         user.setLoginDate(DateUtil.nowSimple());
         user.setLoginIp(IpUtils.getIpAddr(ServletUtil.getRequest()));
         sysUserMapper.updateById(user);
 
-        StpUtil.getSession().set(SaSession.USER, getUserInfo(user));
-    }
-
-    public static UserInfo getUserInfo(SysUser user){
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUser(user);
-        userInfo.setRoles(StpUtil.getRoleList());
-        userInfo.setPermissions(StpUtil.getPermissionList());
-        return userInfo;
+        StpUtil.getSession().set(SaSession.USER, UserInfo.getBySysUser(user));
     }
 }

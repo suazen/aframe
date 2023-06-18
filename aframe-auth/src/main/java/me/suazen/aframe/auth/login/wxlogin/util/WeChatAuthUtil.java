@@ -20,8 +20,8 @@ public class WeChatAuthUtil {
     }
 
     public static JSONObject getAccessToken(String code){
-        String url = "https://api.weixin.qq.com/sns/oauth2/access_token?"
-                + "appid="+properties.getAppId()
+        String url = "https://api.weixin.qq.com/sns/oauth2/access_token"
+                + "?appid="+properties.getAppId()
                 + "&secret="+properties.getSecret()
                 + "&code="+code
                 + "&grant_type=authorization_code";

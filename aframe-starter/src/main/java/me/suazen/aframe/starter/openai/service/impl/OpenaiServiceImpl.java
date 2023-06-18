@@ -2,11 +2,17 @@ package me.suazen.aframe.starter.openai.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.framework.core.exception.BusinessException;
+import me.suazen.aframe.framework.core.manager.AsyncManager;
+import me.suazen.aframe.framework.core.util.DateUtil;
 import me.suazen.aframe.framework.web.util.ServletUtil;
-import me.suazen.aframe.starter.common.dto.ChatRequest;
 import me.suazen.aframe.starter.common.dto.ChatMessage;
+import me.suazen.aframe.starter.common.dto.ChatRequest;
+import me.suazen.aframe.starter.common.entity.ChatHis;
+import me.suazen.aframe.starter.common.mapper.ChatHisMapper;
 import me.suazen.aframe.starter.common.util.AzureOpenaiUtil;
 import me.suazen.aframe.starter.openai.dto.ChatDTO;
 import me.suazen.aframe.starter.openai.handler.OpenaiStreamHandler;
@@ -17,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.util.List;
+import java.util.TimerTask;
 
 @Service
 @Slf4j
@@ -26,14 +34,6 @@ public class OpenaiServiceImpl implements OpenaiService {
 
     @Resource
     private RedissonClient redissonClient;
-
-    @Override
-    public void clearChat(String uuid) {
-        if (StrUtil.isEmpty(uuid)){
-            return;
-        }
-        getChatMessages(uuid).clear();
-    }
 
     @Override
     public void sendMessage(ChatDTO dto) {
@@ -46,11 +46,13 @@ public class OpenaiServiceImpl implements OpenaiService {
         //如果有content则添加，没有表示重新回答
         if (StrUtil.isNotBlank(dto.getContent())) {
             messages.add(ChatMessage.userMsg(dto.getContent().trim()));
+            AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"user",dto.getContent(),messages.size()-1));
         }
         //调用openai接口
         AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages),streamHandler);
         //保存接口返回的完整内容
         messages.add(ChatMessage.botMsg(streamHandler.getContent()));
+        AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"assistant",streamHandler.getContent(),messages.size()-1));
     }
 
     @Override
@@ -64,6 +66,36 @@ public class OpenaiServiceImpl implements OpenaiService {
     }
 
     private RList<ChatMessage> getChatMessages(String uuid){
-        return redissonClient.getList(SESSION_KEY+uuid);
+        RList<ChatMessage> redisList = redissonClient.getList(SESSION_KEY+uuid);
+        redisList.expire(Duration.ofDays(1));
+        if (redisList.isEmpty()){
+            List<ChatHis> chatHisList = new ChatHis()
+                    .conversationId().eq(uuid)
+                    .chatIndex().orderByAsc()
+                    .list();
+            chatHisList.forEach(chatHis -> redisList.add(new ChatMessage(chatHis.getRole(),chatHis.getContent())));
+        }
+        return redisList;
+    }
+
+    @AllArgsConstructor
+    private static class SaveChatHistoryTasker extends TimerTask{
+        private final String userId;
+        private final String conversationId;
+        private final String role;
+        private final String content;
+        private final int index;
+
+        @Override
+        public void run() {
+            ChatHis chatHis = new ChatHis();
+            chatHis.setUserId(userId);
+            chatHis.setChatTime(DateUtil.nowSimple());
+            chatHis.setRole(role);
+            chatHis.setContent(content);
+            chatHis.setConversationId(conversationId);
+            chatHis.setChatIndex(index);
+            SpringUtil.getBean(ChatHisMapper.class).insert(chatHis);
+        }
     }
 }

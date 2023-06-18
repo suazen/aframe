@@ -13,6 +13,7 @@ spring:
     host: 121.37.3.24
     port: 6379
     password: admin123
+    database: 0
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*/*.xml
@@ -25,8 +26,12 @@ restful:
   enable: true
 
 wechat:
-  appId: wxe5385dfbe65dfb59
-  secret: 724bb3aa40a87c50796075d21b1f34cf
+  #公众号
+  appId: wxa1ce438869e31a97
+  secret: a1f8fbb6900812bfa0e98a80a54d4b41
+  #开放平台
+#  appId: wxe5385dfbe65dfb59
+#  secret: 724bb3aa40a87c50796075d21b1f34cf
 
 openai:
   azure:

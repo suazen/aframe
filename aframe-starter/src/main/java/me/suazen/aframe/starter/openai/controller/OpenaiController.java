@@ -16,12 +16,6 @@ public class OpenaiController {
     @Resource
     private OpenaiService openaiService;
 
-    @GetMapping("/clearChat")
-    public AjaxResult clearChat(String uuid){
-        openaiService.clearChat(uuid);
-        return AjaxResult.success();
-    }
-
     @PostMapping(value = "/chat")
     public void chat(@RequestBody @Validated ChatDTO dto){
         openaiService.sendMessage(dto);

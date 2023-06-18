@@ -17,4 +17,6 @@ public class WxLoginBody {
      */
     @NotBlank(message = "授权码不能为空")
     private String code;
+
+    private String state;
 }

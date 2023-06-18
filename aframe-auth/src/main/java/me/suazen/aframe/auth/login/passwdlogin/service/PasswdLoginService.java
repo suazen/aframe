@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * @date 2023-06-06
  **/
 @Service("PASSWD_LOGIN_HANDLER")
-public class PasswordLoginService extends BaseLoginService {
+public class PasswdLoginService extends BaseLoginService {
 
     @Override
     protected SysUser doCheck(JSONObject loginBody) {
