@@ -2,7 +2,6 @@ package me.suazen.aframe.starter.openai.controller;
 
 import cn.hutool.core.util.StrUtil;
 import me.suazen.aframe.framework.core.exception.BusinessException;
-import me.suazen.aframe.framework.web.domain.AjaxResult;
 import me.suazen.aframe.starter.openai.dto.ChatDTO;
 import me.suazen.aframe.starter.openai.service.OpenaiService;
 import org.springframework.validation.annotation.Validated;

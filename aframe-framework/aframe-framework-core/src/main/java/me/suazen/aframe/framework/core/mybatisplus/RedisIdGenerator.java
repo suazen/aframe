@@ -4,6 +4,7 @@ import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import me.suazen.aframe.framework.core.exception.BusinessException;
+import org.redisson.api.RIdGenerator;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,8 @@ public class RedisIdGenerator implements IdentifierGenerator {
                 .orElseThrow(()->new BusinessException("类"+entity.getClass().getName()+"未配置TableId注解"))
                 .getName();
         //根据bizKey调用分布式ID生成
-        return redissonClient.getIdGenerator("seq:"+bizKey).nextId();
+        RIdGenerator idGenerator = redissonClient.getIdGenerator("seq:"+bizKey);
+        idGenerator.tryInit(1,1);
+        return idGenerator.nextId();
     }
 }

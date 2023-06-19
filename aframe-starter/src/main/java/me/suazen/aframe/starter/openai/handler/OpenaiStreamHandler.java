@@ -60,6 +60,7 @@ public class OpenaiStreamHandler implements StreamEventHandler {
 
     @Override
     public void writeError(String json) {
+        contentBuilder = new StringBuilder(json);
         response.setStatus(500);
         ServletUtil.write(response,json,"application/json;charset=UTF-8");
     }

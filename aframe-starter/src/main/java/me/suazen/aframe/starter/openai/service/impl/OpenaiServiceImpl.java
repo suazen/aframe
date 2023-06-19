@@ -49,7 +49,7 @@ public class OpenaiServiceImpl implements OpenaiService {
             AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
         }
         //调用openai接口
-        AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages),streamHandler);
+        AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages.readAll()),streamHandler);
         //保存接口返回的完整内容
         messages.add(ChatMessage.botMsg(streamHandler.getContent()));
         AsyncManager.me().execute(new SaveChatHistoryTasker((String) StpUtil.getLoginId(),dto.getUuid(),"assistant",streamHandler.getContent(),messages.size()-1));

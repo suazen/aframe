@@ -96,9 +96,9 @@ public class SseClient {
             urlConnection.setRequestProperty("Charset", "UTF-8");
             //读取过期时间（很重要，建议加上）
             urlConnection.setReadTimeout(timeout);
-            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            urlConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             this.headers.forEach(urlConnection::setRequestProperty);
-            this.writeBody(urlConnection,eventHandler);
+            this.writeBody(urlConnection);
             InputStream inputStream = urlConnection.getInputStream();
             readStream(inputStream,eventHandler);
         }catch (IOException e){
@@ -126,7 +126,7 @@ public class SseClient {
      * 写body
      * @param conn
      */
-    private void writeBody(HttpURLConnection conn,StreamEventHandler eventHandler) throws IOException{
+    private void writeBody(HttpURLConnection conn) throws IOException{
         if (StrUtil.isEmpty(this.body)){
             return;
         }

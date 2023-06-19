@@ -21,4 +21,8 @@ public class ChatMessage implements Serializable {
     public static ChatMessage botMsg(String content){
         return new ChatMessage("assistant",content);
     }
+
+    public static ChatMessage systemPrompt(String content){
+        return new ChatMessage("system",content);
+    }
 }

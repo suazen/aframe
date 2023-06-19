@@ -17,9 +17,12 @@ public class ChatRequest implements Serializable {
 
     private boolean stream;
 
+    private double temperature;
+
     public ChatRequest(){
         this.messages = new ArrayList<>();
         this.stream = true;
+        this.temperature = 0.5;
     }
 
     public ChatRequest(boolean stream){

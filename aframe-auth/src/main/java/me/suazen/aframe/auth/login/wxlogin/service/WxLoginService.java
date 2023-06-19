@@ -5,6 +5,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.auth.login.wxlogin.dto.StateDTO;
 import me.suazen.aframe.auth.login.wxlogin.dto.WxLoginBody;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2023-06-06
  **/
 @Service("WECHAT_LOGIN_HANDLER")
+@Slf4j
 public class WxLoginService extends BaseLoginService {
     private static final String WX_LOGIN_STATE = "wx-login-state:";
     private static final String NO_LOGIN = "noLogin";
@@ -61,7 +63,7 @@ public class WxLoginService extends BaseLoginService {
         super.doAfterLogin(body,user);
         WxLoginBody loginBody = body.to(WxLoginBody.class);
         if (StrUtil.isNotBlank(loginBody.getState())) {
-            redissonClient.getBucket(WX_LOGIN_STATE + loginBody.getState()).set(StpUtil.getTokenValue());
+            redissonClient.getBucket(WX_LOGIN_STATE + loginBody.getState()).set(StpUtil.getTokenValue(),5,TimeUnit.MINUTES);
         }
     }
 
