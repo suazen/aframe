@@ -46,11 +46,11 @@ public class WxLoginService extends BaseLoginService {
             stateCache.expire(Duration.ofMinutes(3));
         }
         JSONObject wxUserInfo = WeChatAuthUtil.accessAndGetUserInfo(body.getCode());
-        SysUser sysUser = new SysUser().wxId().eq(wxUserInfo.getString("unionid")).one();
+        SysUser sysUser = new SysUser().wxId().eq(wxUserInfo.getString("openid")).one();
         if (sysUser == null){
             //do register
             sysUser = BeanUtil.toBean(wxUserInfo,SysUser.class);
-            sysUser.setWxId(wxUserInfo.getString("unionid"));
+            sysUser.setWxId(wxUserInfo.getString("openid"));
             sysUser.setAvatar(wxUserInfo.getString("headimgurl"));
             sysUserMapper.insert(sysUser);
         } else {
