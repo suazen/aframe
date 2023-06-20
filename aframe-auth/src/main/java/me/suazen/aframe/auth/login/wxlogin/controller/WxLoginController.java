@@ -17,7 +17,7 @@ public class WxLoginController {
 
     @SaIgnore
     @GetMapping("/state")
-    public AjaxResult state(String code){
-        return AjaxResult.success(wxLoginService.checkWxAuthState(code));
+    public AjaxResult state(String code,String scanned){
+        return AjaxResult.success(wxLoginService.checkWxAuthState(code,scanned));
     }
 }

@@ -1,4 +1,4 @@
-package me.suazen.aframe.starter.common.entity;
+package me.suazen.aframe.module.echo.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -25,6 +25,11 @@
             <artifactId>aframe-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>me.suazen</groupId>
+            <artifactId>echo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

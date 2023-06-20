@@ -1,14 +1,23 @@
 package me.suazen.aframe.auth.login.wxlogin.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import me.suazen.aframe.framework.core.constants.Constant;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class StateDTO {
-    private String code;
+import java.util.HashMap;
 
-    private String token;
+public class StateDTO extends HashMap<String,String> {
+
+    public StateDTO newCode(String code){
+        this.put("code",code);
+        return this;
+    }
+
+    public StateDTO token(String token){
+        this.put("token",token);
+        return this;
+    }
+
+    public StateDTO scanned(){
+        this.put("scanned", Constant.YES);
+        return this;
+    }
 }

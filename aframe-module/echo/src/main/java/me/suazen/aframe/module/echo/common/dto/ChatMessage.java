@@ -1,4 +1,4 @@
-package me.suazen.aframe.starter.common.dto;
+package me.suazen.aframe.module.echo.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class ChatMessage implements Serializable {
         return new ChatMessage("assistant",content);
     }
 
-    public static ChatMessage systemPrompt(String content){
-        return new ChatMessage("system",content);
+    public static ChatMessage systemPrompt(String content,Object... value){
+        return new ChatMessage("system",String.format(content,value));
     }
 }

@@ -1,14 +1,13 @@
-package me.suazen.aframe.starter.common.util;
+package me.suazen.aframe.module.echo.common.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
+import me.suazen.aframe.module.echo.common.dto.ChatMessage;
+import me.suazen.aframe.module.echo.common.props.AzureOpenaiProperties;
 import me.suazen.aframe.framework.core.util.DateUtil;
 import me.suazen.aframe.framework.web.sse.SseClient;
 import me.suazen.aframe.framework.web.sse.handler.StreamEventHandler;
-import me.suazen.aframe.starter.common.dto.ChatMessage;
-import me.suazen.aframe.starter.common.dto.ChatRequest;
-import me.suazen.aframe.starter.common.props.AzureOpenaiProperties;
-import org.springframework.http.HttpMethod;
+import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 
 import java.util.Arrays;
 
@@ -27,7 +26,7 @@ public class AzureOpenaiUtil {
     public static void callStream(ChatRequest request, StreamEventHandler eventHandler) {
         request.getMessages().addAll(0,Arrays.asList(
                 ChatMessage.systemPrompt(ai_name_prompt)
-                ,ChatMessage.systemPrompt("Today is "+ DateUtil.today())
+                ,ChatMessage.systemPrompt("Today is %s %s",DateUtil.today(),DateUtil.thisDayOfWeekEnum().name())
                 ,ChatMessage.systemPrompt(role_prompt)
         ));
         SseClient.build(url)

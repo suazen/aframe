@@ -1,6 +1,6 @@
-package me.suazen.aframe.starter.common.mapper;
+package me.suazen.aframe.module.echo.common.mapper;
 
-import me.suazen.aframe.starter.common.entity.ChatHis;
+import me.suazen.aframe.module.echo.common.entity.ChatHis;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

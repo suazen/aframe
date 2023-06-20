@@ -1,4 +1,4 @@
-package me.suazen.aframe.starter.openai.dto;
+package me.suazen.aframe.module.echo.openai.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

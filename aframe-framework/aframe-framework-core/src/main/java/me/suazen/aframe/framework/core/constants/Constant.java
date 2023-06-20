@@ -11,4 +11,8 @@ public class Constant {
     public static final String MENU_TYPE_CAIDAN = "C";
     //菜单类型-按钮
     public static final String MENU_TYPE_ANNIU = "F";
+
+    public static final String YES = "1";
+
+    public static final String NO = "0";
 }

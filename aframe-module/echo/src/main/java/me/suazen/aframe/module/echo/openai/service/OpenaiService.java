@@ -1,6 +1,6 @@
-package me.suazen.aframe.starter.openai.service;
+package me.suazen.aframe.module.echo.openai.service;
 
-import me.suazen.aframe.starter.openai.dto.ChatDTO;
+import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 
 public interface OpenaiService {
     void sendMessage(ChatDTO dto);

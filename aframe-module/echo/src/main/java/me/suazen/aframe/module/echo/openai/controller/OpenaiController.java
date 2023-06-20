@@ -1,9 +1,9 @@
-package me.suazen.aframe.starter.openai.controller;
+package me.suazen.aframe.module.echo.openai.controller;
 
 import cn.hutool.core.util.StrUtil;
+import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
+import me.suazen.aframe.module.echo.openai.service.OpenaiService;
 import me.suazen.aframe.framework.core.exception.BusinessException;
-import me.suazen.aframe.starter.openai.dto.ChatDTO;
-import me.suazen.aframe.starter.openai.service.OpenaiService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

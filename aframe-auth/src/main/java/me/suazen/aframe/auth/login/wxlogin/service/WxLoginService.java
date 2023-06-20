@@ -10,6 +10,7 @@ import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.auth.login.wxlogin.dto.StateDTO;
 import me.suazen.aframe.auth.login.wxlogin.dto.WxLoginBody;
 import me.suazen.aframe.auth.login.wxlogin.util.WeChatAuthUtil;
+import me.suazen.aframe.framework.core.constants.Constant;
 import me.suazen.aframe.framework.core.exception.BusinessException;
 import me.suazen.aframe.system.core.entity.SysUser;
 import org.redisson.api.RBucket;
@@ -28,7 +29,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class WxLoginService extends BaseLoginService {
     private static final String WX_LOGIN_STATE = "wx-login-state:";
-    private static final String NO_LOGIN = "noLogin";
+    private static final String STATE_NO_LOGIN = "noLogin";
+    private static final String STATE_SCANNED = "scanned";
 
     @Resource
     private RedissonClient redissonClient;
@@ -67,29 +69,45 @@ public class WxLoginService extends BaseLoginService {
         }
     }
 
-    public StateDTO checkWxAuthState(String code){
+    /**
+     * 微信扫码登录流程：
+     * ①生成uuid并缓存（3分钟过期），初始状态nologin
+     * ②前端轮询，通过uuid查询登录状态
+     * ③扫码后更新状态为scanned，刷新缓存有效期为3分钟
+     * ④授权登录后缓存token，缓存5分钟
+     */
+    public StateDTO checkWxAuthState(String code,String scanned){
         //入参未携带code，生成新的并返回
         if (StrUtil.isEmpty(code)){
-            return new StateDTO(generateCode(),null);
+            return new StateDTO().newCode(generateCode());
         }
         //从redis获取token
         String token = redissonClient.<String>getBucket(WX_LOGIN_STATE +code).get();
         //若token为空，说明redis已过期，重新生成code并返回
         if (token == null){
-            return new StateDTO(generateCode(),null);
+            return new StateDTO().newCode(generateCode());
         }
         //未登录状态
-        if (NO_LOGIN.equals(token)){
-            return new StateDTO(null,null);
+        if (STATE_NO_LOGIN.equals(token)){
+            //auth-feedback页面请求
+            if (Constant.YES.equals(scanned)){
+                redissonClient.<String>getBucket(WX_LOGIN_STATE +code).set(STATE_SCANNED,3, TimeUnit.MINUTES);
+            }
+            return new StateDTO();
+        }
+        //已扫码
+        if (STATE_SCANNED.equals(token)){
+            //auth-feedback页面请求
+            return new StateDTO().scanned();
         }
         //已登录，返回token
 //        redissonClient.<String>getBucket(WX_LOGIN_STATE +code).deleteAsync();
-        return new StateDTO(null,token);
+        return new StateDTO().token(token);
     }
 
     private String generateCode(){
         String uuid = UUID.fastUUID().toString();
-        redissonClient.<String>getBucket(WX_LOGIN_STATE +uuid).set(NO_LOGIN,3, TimeUnit.MINUTES);
+        redissonClient.<String>getBucket(WX_LOGIN_STATE +uuid).set(STATE_NO_LOGIN,3, TimeUnit.MINUTES);
         return uuid;
     }
 }

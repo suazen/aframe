@@ -1,4 +1,4 @@
-package me.suazen.aframe.starter.common.dto;
+package me.suazen.aframe.module.echo.common.dto;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.Getter;
