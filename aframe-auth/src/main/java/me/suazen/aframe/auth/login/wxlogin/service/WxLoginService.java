@@ -76,13 +76,13 @@ public class WxLoginService extends BaseLoginService {
      * ③扫码后更新状态为scanned，刷新缓存有效期为3分钟
      * ④授权登录后缓存token，缓存5分钟
      */
-    public StateDTO checkWxAuthState(String code,String scanned){
+    public StateDTO checkWxAuthState(String stateCode,String wxcode){
         //入参未携带code，生成新的并返回
-        if (StrUtil.isEmpty(code)){
+        if (StrUtil.isEmpty(stateCode)){
             return new StateDTO().newCode(generateCode());
         }
         //从redis获取token
-        String token = redissonClient.<String>getBucket(WX_LOGIN_STATE +code).get();
+        String token = redissonClient.<String>getBucket(WX_LOGIN_STATE +stateCode).get();
         //若token为空，说明redis已过期，重新生成code并返回
         if (token == null){
             return new StateDTO().newCode(generateCode());
@@ -90,18 +90,20 @@ public class WxLoginService extends BaseLoginService {
         //未登录状态
         if (STATE_NO_LOGIN.equals(token)){
             //auth-feedback页面请求
-            if (GlobalConstant.YES.equals(scanned)){
-                redissonClient.<String>getBucket(WX_LOGIN_STATE +code).set(STATE_SCANNED,3, TimeUnit.MINUTES);
+            if (StrUtil.isNotBlank(wxcode)){
+                redissonClient.<String>getBucket(WX_LOGIN_STATE +stateCode).set(STATE_SCANNED+":"+wxcode,3, TimeUnit.MINUTES);
             }
             return new StateDTO();
         }
         //已扫码
-        if (STATE_SCANNED.equals(token)){
+        if (token.startsWith(STATE_SCANNED)){
+            if (token.split(":")[1].equals(wxcode)){
+                return new StateDTO();
+            }
             //auth-feedback页面请求
             return new StateDTO().scanned();
         }
         //已登录，返回token
-//        redissonClient.<String>getBucket(WX_LOGIN_STATE +code).deleteAsync();
         return new StateDTO().token(token);
     }
 
