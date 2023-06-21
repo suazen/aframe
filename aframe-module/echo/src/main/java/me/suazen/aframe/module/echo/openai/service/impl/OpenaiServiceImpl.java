@@ -2,21 +2,22 @@ package me.suazen.aframe.module.echo.openai.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.suazen.aframe.framework.core.constants.GlobalConstant;
+import me.suazen.aframe.framework.core.exception.BusinessException;
+import me.suazen.aframe.framework.core.manager.AsyncManager;
+import me.suazen.aframe.framework.core.util.RandomUtil;
+import me.suazen.aframe.framework.web.util.ServletUtil;
+import me.suazen.aframe.module.echo.common.constants.Constant;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
+import me.suazen.aframe.module.echo.common.entity.ChatHint;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
-import me.suazen.aframe.module.echo.common.mapper.ChatHisMapper;
+import me.suazen.aframe.module.echo.common.tasker.SaveChatHistoryTasker;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.handler.OpenaiStreamHandler;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
-import me.suazen.aframe.framework.core.exception.BusinessException;
-import me.suazen.aframe.framework.core.manager.AsyncManager;
-import me.suazen.aframe.framework.core.util.DateUtil;
-import me.suazen.aframe.framework.web.util.ServletUtil;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,13 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
-import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class OpenaiServiceImpl implements OpenaiService {
-    public static final String SESSION_KEY = "openai_chat_his:";
 
     @Resource
     private RedissonClient redissonClient;
@@ -65,8 +66,39 @@ public class OpenaiServiceImpl implements OpenaiService {
         sendMessage(new ChatDTO(uuid,null));
     }
 
+    @Override
+    public List<String> queryHint(String query) {
+        RList<String> hintList = redissonClient.getList(Constant.REDIS_KEY_CHAT_HINT);
+        if (!hintList.isExists()){
+            List<ChatHint> hints = new ChatHint().select(ChatHint.CONTENT).state().eq(GlobalConstant.YES).list();
+            hintList.addAll(hints.stream().map(ChatHint::getContent).collect(Collectors.toList()));
+        }
+        if (hintList.isEmpty()){
+            return Collections.emptyList();
+        }
+        if ("all".equals(query)){
+            return hintList.readAll();
+        }
+        if (StrUtil.isEmpty(query)){
+            int length = Math.min(hintList.size(),6);
+            return hintList.get(RandomUtil.randomInts(0,hintList.size()-1,length));
+        }
+        return hintList.readAll()
+                .stream()
+                .filter(hint-> {
+                    String[] splits = query.split(" ");
+                    for (String split : splits) {
+                        if (hint.toLowerCase().contains(split.toLowerCase())){
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
+    }
+
     private RList<ChatMessage> getChatMessages(String uuid){
-        RList<ChatMessage> redisList = redissonClient.getList(SESSION_KEY+uuid);
+        RList<ChatMessage> redisList = redissonClient.getList(Constant.REDIS_KEY_CHAT_HIS +uuid);
         redisList.expire(Duration.ofDays(1));
         if (redisList.isEmpty()){
             List<ChatHis> chatHisList = new ChatHis()
@@ -76,26 +108,5 @@ public class OpenaiServiceImpl implements OpenaiService {
             chatHisList.forEach(chatHis -> redisList.add(new ChatMessage(chatHis.getRole(),chatHis.getContent())));
         }
         return redisList;
-    }
-
-    @AllArgsConstructor
-    private static class SaveChatHistoryTasker extends TimerTask{
-        private final String userId;
-        private final String conversationId;
-        private final String role;
-        private final String content;
-        private final int index;
-
-        @Override
-        public void run() {
-            ChatHis chatHis = new ChatHis();
-            chatHis.setUserId(userId);
-            chatHis.setChatTime(DateUtil.nowSimple());
-            chatHis.setRole(role);
-            chatHis.setContent(content);
-            chatHis.setConversationId(conversationId);
-            chatHis.setChatIndex(index);
-            SpringUtil.getBean(ChatHisMapper.class).insert(chatHis);
-        }
     }
 }

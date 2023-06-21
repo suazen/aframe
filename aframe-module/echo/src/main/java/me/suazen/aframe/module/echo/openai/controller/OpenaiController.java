@@ -1,9 +1,11 @@
 package me.suazen.aframe.module.echo.openai.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import cn.hutool.core.util.StrUtil;
+import me.suazen.aframe.framework.core.exception.BusinessException;
+import me.suazen.aframe.framework.web.domain.AjaxResult;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
-import me.suazen.aframe.framework.core.exception.BusinessException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,5 +31,11 @@ public class OpenaiController {
             throw new BusinessException("序号不能为空");
         }
         openaiService.reGenerate(uuid, index);
+    }
+
+    @SaIgnore
+    @GetMapping("/queryHint")
+    public AjaxResult queryHint(String query){
+        return AjaxResult.success(openaiService.queryHint(query));
     }
 }

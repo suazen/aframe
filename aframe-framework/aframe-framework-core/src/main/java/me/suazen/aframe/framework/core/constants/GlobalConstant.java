@@ -4,7 +4,7 @@ package me.suazen.aframe.framework.core.constants;
  * @author sujizhen
  * @date 2023-06-12
  **/
-public class Constant {
+public class GlobalConstant {
     //菜单类型-目录
     public static final String MENU_TYPE_MULU = "M";
     //菜单类型-菜单

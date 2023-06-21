@@ -1,6 +1,6 @@
 package me.suazen.aframe.auth.login.wxlogin.dto;
 
-import me.suazen.aframe.framework.core.constants.Constant;
+import me.suazen.aframe.framework.core.constants.GlobalConstant;
 
 import java.util.HashMap;
 
@@ -17,7 +17,7 @@ public class StateDTO extends HashMap<String,String> {
     }
 
     public StateDTO scanned(){
-        this.put("scanned", Constant.YES);
+        this.put("scanned", GlobalConstant.YES);
         return this;
     }
 }

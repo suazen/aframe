@@ -4,7 +4,7 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.session.SaSessionCustomUtil;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
-import me.suazen.aframe.framework.core.constants.Constant;
+import me.suazen.aframe.framework.core.constants.GlobalConstant;
 import me.suazen.aframe.system.core.entity.SysMenu;
 import me.suazen.aframe.system.core.entity.SysRole;
 import me.suazen.aframe.system.core.entity.SysRoleMenu;
@@ -59,7 +59,7 @@ public class StpInterfaceImpl implements StpInterface {
             return Collections.emptyList();
         }
         List<SysMenu> permList = new SysMenu().select(SysMenu.PERMS)
-                .menuType().eq(Constant.MENU_TYPE_ANNIU)
+                .menuType().eq(GlobalConstant.MENU_TYPE_ANNIU)
                 .menuId().in(permIdList)
                 .list();     // 从数据库查询这个角色所拥有的权限列表
         return permList.stream().map(SysMenu::getPerms)

@@ -10,7 +10,7 @@ import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.auth.login.wxlogin.dto.StateDTO;
 import me.suazen.aframe.auth.login.wxlogin.dto.WxLoginBody;
 import me.suazen.aframe.auth.login.wxlogin.util.WeChatAuthUtil;
-import me.suazen.aframe.framework.core.constants.Constant;
+import me.suazen.aframe.framework.core.constants.GlobalConstant;
 import me.suazen.aframe.framework.core.exception.BusinessException;
 import me.suazen.aframe.system.core.entity.SysUser;
 import org.redisson.api.RBucket;
@@ -90,7 +90,7 @@ public class WxLoginService extends BaseLoginService {
         //未登录状态
         if (STATE_NO_LOGIN.equals(token)){
             //auth-feedback页面请求
-            if (Constant.YES.equals(scanned)){
+            if (GlobalConstant.YES.equals(scanned)){
                 redissonClient.<String>getBucket(WX_LOGIN_STATE +code).set(STATE_SCANNED,3, TimeUnit.MINUTES);
             }
             return new StateDTO();
