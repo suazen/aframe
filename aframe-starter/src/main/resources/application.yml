@@ -3,6 +3,8 @@ server:
   main:
     allow-bean-definition-overriding: true
 spring:
+  application:
+    name: aframe-starter
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://121.37.3.24:3306/aframe?useUnicode=true&characterEncoding=utf-8&useSSL=false
@@ -14,6 +16,32 @@ spring:
     port: 6379
     password: admin123
     database: 0
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080/monitor
+        username: aframeAdmin
+        password: aframeSuper123
+        instance:
+          metadata:
+            user.name: ${spring.boot.admin.client.username}
+            user.password: ${spring.boot.admin.client.password}
+
+sa-token:
+  basic: ${spring.boot.admin.client.username}:${spring.boot.admin.client.password}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    env:
+      enabled: true
+
+logging:
+  file:
+    name: logs/aframe.log
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*/*.xml

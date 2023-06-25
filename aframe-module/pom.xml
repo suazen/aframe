@@ -3,13 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>me.suazen</groupId>
-        <artifactId>aframe</artifactId>
-        <version>0.0.1</version>
-    </parent>
 
+    <groupId>me.suazen.aframe</groupId>
     <artifactId>aframe-module</artifactId>
+    <version>0.0.1</version>
     <packaging>pom</packaging>
     <modules>
         <module>echo</module>
@@ -23,8 +20,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>me.suazen</groupId>
-            <artifactId>aframe-framework-web</artifactId>
+            <groupId>me.suazen.aframe</groupId>
+            <artifactId>aframe-web</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

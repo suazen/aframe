@@ -4,9 +4,9 @@ import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.props.AzureOpenaiProperties;
-import me.suazen.aframe.framework.core.util.DateUtil;
-import me.suazen.aframe.framework.web.sse.SseClient;
-import me.suazen.aframe.framework.web.sse.handler.StreamEventHandler;
+import me.suazen.aframe.core.util.DateUtil;
+import me.suazen.aframe.web.sse.SseClient;
+import me.suazen.aframe.web.sse.handler.StreamEventHandler;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 
 import java.util.Arrays;

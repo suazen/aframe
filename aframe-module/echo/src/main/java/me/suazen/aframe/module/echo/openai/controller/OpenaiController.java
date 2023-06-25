@@ -2,8 +2,8 @@ package me.suazen.aframe.module.echo.openai.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.hutool.core.util.StrUtil;
-import me.suazen.aframe.framework.core.exception.BusinessException;
-import me.suazen.aframe.framework.web.domain.AjaxResult;
+import me.suazen.aframe.core.exception.BusinessException;
+import me.suazen.aframe.web.domain.AjaxResult;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
 import org.springframework.validation.annotation.Validated;

@@ -2,7 +2,7 @@ package me.suazen.aframe.module.echo.common.tasker;
 
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.AllArgsConstructor;
-import me.suazen.aframe.framework.core.util.DateUtil;
+import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
 import me.suazen.aframe.module.echo.common.mapper.ChatHisMapper;
 

@@ -5,9 +5,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
-import me.suazen.aframe.framework.core.exception.BaseException;
-import me.suazen.aframe.framework.web.sse.handler.StreamEventHandler;
-import me.suazen.aframe.framework.web.util.ServletUtil;
+import me.suazen.aframe.core.exception.BaseException;
+import me.suazen.aframe.web.sse.handler.StreamEventHandler;
+import me.suazen.aframe.web.util.ServletUtil;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
