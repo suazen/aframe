@@ -1,6 +1,9 @@
 package me.suazen.aframe.module.echo.common.tasker;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.api.ModelType;
 import lombok.AllArgsConstructor;
 import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
@@ -15,6 +18,8 @@ import java.util.TimerTask;
 @AllArgsConstructor
 
 public class SaveChatHistoryTasker extends TimerTask {
+    private static final EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+
     private final String userId;
     private final String conversationId;
     private final String role;
@@ -30,6 +35,7 @@ public class SaveChatHistoryTasker extends TimerTask {
         chatHis.setContent(content);
         chatHis.setConversationId(conversationId);
         chatHis.setChatIndex(index);
+        chatHis.setTokens(registry.getEncodingForModel(ModelType.GPT_3_5_TURBO).countTokens(content));
         SpringUtil.getBean(ChatHisMapper.class).insert(chatHis);
     }
 }

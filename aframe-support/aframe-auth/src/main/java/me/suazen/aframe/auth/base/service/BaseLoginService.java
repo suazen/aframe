@@ -1,43 +1,46 @@
 package me.suazen.aframe.auth.base.service;
 
 import cn.dev33.satoken.session.SaSession;
-import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.stp.StpLogic;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.suazen.aframe.auth.base.dto.UserInfo;
 import me.suazen.aframe.core.util.DateUtil;
+import me.suazen.aframe.system.core.base.User;
 import me.suazen.aframe.web.util.IpUtils;
 import me.suazen.aframe.web.util.ServletUtil;
-import me.suazen.aframe.system.core.entity.SysUser;
-import me.suazen.aframe.system.core.mapper.SysUserMapper;
 
-import javax.annotation.Resource;
+import java.util.Optional;
 
 /**
  * @author sujizhen
  * @date 2023-06-06
  **/
-public abstract class BaseLoginService {
-    @Resource
-    protected SysUserMapper sysUserMapper;
+public abstract class BaseLoginService<T extends User,M extends BaseMapper<T>>{
+    public StpLogic stpLogic;
+
+    protected M mapper;
+
+    protected abstract T doCheck(JSONObject loginBody);
 
     public String login(JSONObject loginBody){
-        SysUser user = doCheck(loginBody);
-        StpUtil.login(user.getUserId());
+        T user = doCheck(loginBody);
+        stpLogic.login(user.getUserId());
         doAfterLogin(loginBody,user);
-        return StpUtil.getTokenValue();
+        return stpLogic.getTokenValue();
     };
 
-    protected abstract SysUser doCheck(JSONObject loginBody);
-
-    protected void doAfterLogin(JSONObject body,SysUser user){
-        saveUserSession(user);
-    }
-
-    private void saveUserSession(SysUser user){
+    protected void doAfterLogin(JSONObject body, T user){
         user.setLoginDate(DateUtil.nowSimple());
         user.setLoginIp(IpUtils.getIpAddr(ServletUtil.getRequest()));
-        sysUserMapper.updateById(user);
+        mapper.updateById(user);
+        stpLogic.getSession().set(SaSession.USER, getUserInfo(user));
+    }
 
-        StpUtil.getSession().set(SaSession.USER, UserInfo.getBySysUser(user));
+    public UserInfo<T> getUserInfo(T user){
+        return new UserInfo<T>()
+                .setUser(Optional.ofNullable(user).orElse(mapper.selectById((String)stpLogic.getLoginId())))
+                .setRoles(stpLogic.getRoleList())
+                .setPermissions(stpLogic.getPermissionList());
     }
 }

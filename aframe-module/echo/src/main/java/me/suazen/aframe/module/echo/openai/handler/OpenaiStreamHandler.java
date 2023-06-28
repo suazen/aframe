@@ -1,15 +1,14 @@
 package me.suazen.aframe.module.echo.openai.handler;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
 import me.suazen.aframe.core.exception.BaseException;
+import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
 import me.suazen.aframe.web.sse.handler.StreamEventHandler;
 import me.suazen.aframe.web.util.ServletUtil;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -18,37 +17,30 @@ import java.io.IOException;
  **/
 @Slf4j
 public class OpenaiStreamHandler implements StreamEventHandler {
-    private final HttpServletResponse response;
+    private final SseEmitter sseEmitter;
 
     private StringBuilder contentBuilder;
 
-    public OpenaiStreamHandler(HttpServletResponse response){
-        this.response = response;
+    public OpenaiStreamHandler(SseEmitter sseEmitter){
+        this.sseEmitter = sseEmitter;
         contentBuilder = new StringBuilder();
     }
 
     @Override
     public void readStream(String text) {
         try {
-            if (StrUtil.isEmpty(text)) {
-                response.getOutputStream().write("\n".getBytes());
-                response.getOutputStream().flush();
-                return;
-            }
             if (!text.startsWith("data:")){
                 return;
             }
             String content = text.substring("data:".length());
             if ("[DONE]".equals(content.trim())) {
-                response.getOutputStream().write("[DONE]".getBytes());
-                response.getOutputStream().flush();
+                sseEmitter.send("[DONE]");
             } else {
                 GptStreamResponse streamRes = JSON.parseObject(content, GptStreamResponse.class);
                 JSONObject delta = streamRes.getChoices().stream().findFirst().orElse(new GptStreamResponse.Choice()).getDelta();
                 if (delta != null && delta.containsKey("content")) {
                     contentBuilder.append(delta.getString("content"));
-                    response.getOutputStream().write(delta.toString().getBytes());
-                    response.getOutputStream().flush();
+                    sseEmitter.send(delta.toString());
                 }
             }
         } catch (IOException e) {
@@ -61,17 +53,12 @@ public class OpenaiStreamHandler implements StreamEventHandler {
     @Override
     public void writeError(String json) {
         contentBuilder = new StringBuilder(json);
-        response.setStatus(500);
-        ServletUtil.write(response,json,"application/json;charset=UTF-8");
+        ServletUtil.write(ServletUtil.getResponse(),json,"application/json;charset=UTF-8");
     }
 
     @Override
     public void onComplete() {
-        try {
-            response.getOutputStream().close();
-        }catch (IOException e){
-            log.error("Response输出流关闭失败");
-        }
+        sseEmitter.complete();
     }
 
     public String getContent(){

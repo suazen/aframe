@@ -1,4 +1,4 @@
-package me.suazen.aframe.auth.login.wxlogin.util;
+package me.suazen.aframe.module.echo.wechat.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;

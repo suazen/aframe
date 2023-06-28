@@ -13,7 +13,7 @@ import java.util.Optional;
  **/
 public class ExceptionUtil extends cn.hutool.core.exceptions.ExceptionUtil {
     public static String getMessage(Throwable e){
-        return getMessage(e,true);
+        return getMessage(e,false);
     }
 
     public static String getMessage(Throwable e,boolean showPosition){

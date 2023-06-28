@@ -57,4 +57,9 @@ public class ChatHis implements Serializable {
      * 序号
      */
     private Integer chatIndex;
+
+    /**
+     * token数量
+     */
+    private Integer tokens;
 }

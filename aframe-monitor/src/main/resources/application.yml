@@ -1,3 +1,7 @@
+server:
+  tomcat:
+    remoteip:
+      protocol-header: X-Forwarded-Proto
 spring:
   security:
     user:
@@ -5,4 +9,5 @@ spring:
       password: aframeSuper123
   boot:
     admin:
-      context-path: monitor
+      ui:
+        title: Aframe Monitor

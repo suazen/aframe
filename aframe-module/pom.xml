@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>me.suazen.aframe</groupId>
-            <artifactId>aframe-web</artifactId>
+            <artifactId>aframe-auth</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

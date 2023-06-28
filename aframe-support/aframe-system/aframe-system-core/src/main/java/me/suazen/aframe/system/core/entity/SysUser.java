@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import me.suazen.aframe.system.core.base.User;
 
 import java.io.Serializable;
 
@@ -18,7 +19,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @TableName("sys_user")
-public class SysUser implements Serializable {
+public class SysUser implements Serializable, User {
 
     private static final long serialVersionUID = 1L;
 

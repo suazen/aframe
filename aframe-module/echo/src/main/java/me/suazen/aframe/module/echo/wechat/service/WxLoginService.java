@@ -1,20 +1,21 @@
-package me.suazen.aframe.auth.login.wxlogin.service;
+package me.suazen.aframe.module.echo.wechat.service;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.auth.base.service.BaseLoginService;
-import me.suazen.aframe.auth.login.wxlogin.dto.StateDTO;
-import me.suazen.aframe.auth.login.wxlogin.dto.WxLoginBody;
-import me.suazen.aframe.auth.login.wxlogin.util.WeChatAuthUtil;
-import me.suazen.aframe.core.constants.GlobalConstant;
 import me.suazen.aframe.core.exception.BusinessException;
-import me.suazen.aframe.system.core.entity.SysUser;
+import me.suazen.aframe.module.echo.common.entity.WxUser;
+import me.suazen.aframe.module.echo.common.mapper.WxUserMapper;
+import me.suazen.aframe.module.echo.wechat.dto.StateDTO;
+import me.suazen.aframe.module.echo.wechat.dto.WxLoginBody;
+import me.suazen.aframe.module.echo.wechat.util.StpWxUtil;
+import me.suazen.aframe.module.echo.wechat.util.WeChatAuthUtil;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @Service("WECHAT_LOGIN_HANDLER")
 @Slf4j
-public class WxLoginService extends BaseLoginService {
+public class WxLoginService extends BaseLoginService<WxUser,WxUserMapper> {
     private static final String WX_LOGIN_STATE = "wx-login-state:";
     private static final String STATE_NO_LOGIN = "noLogin";
     private static final String STATE_SCANNED = "scanned";
@@ -35,8 +36,14 @@ public class WxLoginService extends BaseLoginService {
     @Resource
     private RedissonClient redissonClient;
 
+    @Autowired
+    public WxLoginService(WxUserMapper wxUserMapper){
+        this.mapper = wxUserMapper;
+        this.stpLogic = StpWxUtil.stpLogic;
+    }
+
     @Override
-    protected SysUser doCheck(JSONObject loginBody) {
+    protected WxUser doCheck(JSONObject loginBody) {
         WxLoginBody body = loginBody.to(WxLoginBody.class);
         if (StrUtil.isNotEmpty(body.getState())){
             RBucket<String> stateCache = redissonClient.<String>getBucket(WX_LOGIN_STATE +body.getState());
@@ -46,26 +53,27 @@ public class WxLoginService extends BaseLoginService {
             stateCache.expire(Duration.ofMinutes(3));
         }
         JSONObject wxUserInfo = WeChatAuthUtil.accessAndGetUserInfo(body.getCode());
-        SysUser sysUser = new SysUser().wxId().eq(wxUserInfo.getString("openid")).one();
-        if (sysUser == null){
+        WxUser user = new WxUser().wxId().eq(wxUserInfo.getString("openid")).one();
+        if (user == null){
+            user = new WxUser();
             //do register
-            sysUser = BeanUtil.toBean(wxUserInfo,SysUser.class);
-            sysUser.setWxId(wxUserInfo.getString("openid"));
-            sysUser.setAvatar(wxUserInfo.getString("headimgurl"));
-            sysUserMapper.insert(sysUser);
+            user.setNickname(wxUserInfo.getString("nickname"));
+            user.setWxId(wxUserInfo.getString("openid"));
+            user.setAvatar(wxUserInfo.getString("headimgurl"));
+            mapper.insert(user);
         } else {
-            BeanUtil.copyProperties(wxUserInfo,sysUser);
-            sysUser.setAvatar(wxUserInfo.getString("headimgurl"));
+            BeanUtil.copyProperties(wxUserInfo,user);
+            user.setAvatar(wxUserInfo.getString("headimgurl"));
         }
-        return sysUser;
+        return user;
     }
 
     @Override
-    protected void doAfterLogin(JSONObject body,SysUser user) {
+    protected void doAfterLogin(JSONObject body,WxUser user) {
         super.doAfterLogin(body,user);
         WxLoginBody loginBody = body.to(WxLoginBody.class);
         if (StrUtil.isNotBlank(loginBody.getState())) {
-            redissonClient.getBucket(WX_LOGIN_STATE + loginBody.getState()).set(StpUtil.getTokenValue(),5,TimeUnit.MINUTES);
+            redissonClient.getBucket(WX_LOGIN_STATE + loginBody.getState()).set(stpLogic.getTokenValue(),5,TimeUnit.MINUTES);
         }
     }
 

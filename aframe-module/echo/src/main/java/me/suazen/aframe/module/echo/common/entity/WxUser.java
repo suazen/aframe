@@ -1,51 +1,52 @@
 package me.suazen.aframe.module.echo.common.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
+import me.suazen.aframe.system.core.base.User;
+
+import java.io.Serializable;
 
 /**
- * <p>
- * 提示模板表
- * </p>
- *
  * @author sujizhen
- * @since 2023-06-21
- */
+ * @date 2023-06-28
+ **/
 @Getter
 @Setter
-@TableName("chat_hint")
-public class ChatHint implements Serializable {
-
+@TableName("wx_user")
+public class WxUser implements Serializable, User {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * 用户id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private String hintId;
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String userId;
 
     /**
-     * 角色
+     * 用户昵称
      */
-    private String role;
+    private String nickname;
 
     /**
-     * 场景
+     * 微信id
      */
-    private String scene;
+    private String wxId;
 
     /**
-     * 内容
+     * 头像
      */
-    private String content;
+    private String avatar;
 
     /**
-     * 有效状态
+     * 上次登录IP
      */
-    private String state;
+    private String loginIp;
+
+    /**
+     * 上次登录时间
+     */
+    private String loginDate;
 
     /**
      * 创建时间

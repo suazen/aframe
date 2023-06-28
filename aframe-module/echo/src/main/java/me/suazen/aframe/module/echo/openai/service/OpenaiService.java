@@ -1,13 +1,13 @@
 package me.suazen.aframe.module.echo.openai.service;
 
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
 public interface OpenaiService {
-    void sendMessage(ChatDTO dto);
+    SseEmitter sendMessage(ChatDTO dto);
 
-    void reGenerate(String uuid,int index);
+    SseEmitter reGenerate(String uuid,int index);
 
-    List<String> queryHint(String query);
 }

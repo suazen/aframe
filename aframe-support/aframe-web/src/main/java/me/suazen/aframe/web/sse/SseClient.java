@@ -86,14 +86,12 @@ public class SseClient {
         try {
             URL url = new URL(this.url);
             urlConnection = (HttpURLConnection) url.openConnection();
-            // 这儿根据自己的情况选择get或post
             urlConnection.setRequestMethod(method);
             urlConnection.setDoOutput(doOutput);
             urlConnection.setDoInput(doInput);
             urlConnection.setUseCaches(useCache);
             urlConnection.setRequestProperty("Connection", "Keep-Alive");
             urlConnection.setRequestProperty("Charset", "UTF-8");
-            //读取过期时间（很重要，建议加上）
             urlConnection.setReadTimeout(timeout);
             urlConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             this.headers.forEach(urlConnection::setRequestProperty);
@@ -113,23 +111,28 @@ public class SseClient {
     private void readStream(InputStream inputStream,StreamEventHandler eventHandler) throws IOException{
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
+        int i = 0;
+        log.debug("------开始接收openai数据------");
         while ((line = reader.readLine()) != null) {
+            if (StrUtil.isNotBlank(line)){
+                log.debug("{}：{}",++i,line);
+            }
             // 处理数据接口
             eventHandler.readStream(line);
         }
+        log.debug("------openai数据接收完毕------");
         eventHandler.onComplete();
         reader.close();
     }
 
     /**
      * 写body
-     * @param conn
      */
     private void writeBody(HttpURLConnection conn) throws IOException{
         if (StrUtil.isEmpty(this.body)){
             return;
         }
-        log.info("body：{}",this.body);
+        log.debug("body：{}",this.body);
         byte[] dataBytes = this.body.getBytes();
         conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
         OutputStream os = conn.getOutputStream();

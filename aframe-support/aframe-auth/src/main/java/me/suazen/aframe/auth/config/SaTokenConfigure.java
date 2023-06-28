@@ -1,16 +1,19 @@
 package me.suazen.aframe.auth.config;
 
+import cn.dev33.satoken.SaManager;
 import cn.dev33.satoken.basic.SaBasicUtil;
 import cn.dev33.satoken.config.SaTokenConfig;
 import cn.dev33.satoken.context.SaHolder;
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.router.SaRouter;
-import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.stp.StpLogic;
+import me.suazen.aframe.web.constants.ResponseCode;
 import me.suazen.aframe.web.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -52,7 +55,11 @@ public class SaTokenConfigure {
                     SaRouter.match("/**")
                             .notMatch("/auth/*/login", "/actuator/**")
                             .notMatch(saIgnoreList)
-                            .check(StpUtil::checkLogin);
+                            .check(()->{
+                                if (SaManager.stpLogicMap.values().stream().noneMatch(StpLogic::isLogin)){
+                                    throw NotLoginException.newInstance(null,null);
+                                }
+                            });
 
                     //actuator接口添加http basic认证
                     SaRouter.match("/actuator/**", () -> SaBasicUtil.check());
@@ -62,7 +69,13 @@ public class SaTokenConfigure {
                 // 异常处理函数：每次认证函数发生异常时执行此函数
                 .setError(e -> {
                     SaHolder.getResponse().setHeader("Content-Type", "application/json;charset=UTF-8");
-                    return AjaxResult.error(e.getMessage());
+                    if (e instanceof NotLoginException){
+                        return AjaxResult.of(ResponseCode.UNAUTHORIZED).setMsg(e.getMessage());
+                    }else if (e instanceof NotPermissionException){
+                        return AjaxResult.of(ResponseCode.FORBIDDEN).setMsg(e.getMessage());
+                    }else{
+                        return AjaxResult.error(e.getMessage());
+                    }
                 })
                 // 前置函数：在每次认证函数之前执行（BeforeAuth 不受 includeList 与 excludeList 的限制，所有请求都会进入）
                 .setBeforeAuth(r -> {

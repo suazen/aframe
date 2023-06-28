@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: aframe-starter
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://43.136.57.159:7780/aframe?useUnicode=true
+    username: aframe
+    password: aframeSuper123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: 43.136.57.159
+    port: 6789
+    password: tongpin666
+    database: 0
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080
+        username: aframeAdmin
+        password: aframeSuper123
+        instance:
+          metadata:
+            user.name: ${spring.boot.admin.client.username}
+            user.password: ${spring.boot.admin.client.password}
+
+openai:
+  azure:
+    end-point: zhaolu666
+    model: tongpinai
+    version: 2023-06-01-preview
+    api-key: a52578860eb6473ab8d564f053769b08

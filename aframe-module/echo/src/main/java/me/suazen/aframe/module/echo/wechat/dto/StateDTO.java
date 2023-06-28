@@ -1,4 +1,4 @@
-package me.suazen.aframe.auth.login.wxlogin.dto;
+package me.suazen.aframe.module.echo.wechat.dto;
 
 import me.suazen.aframe.core.constants.GlobalConstant;
 

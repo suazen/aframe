@@ -1,4 +1,4 @@
-package me.suazen.aframe.auth.base.service;
+package me.suazen.aframe.auth.config;
 
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.session.SaSessionCustomUtil;
@@ -24,13 +24,17 @@ import java.util.stream.Collectors;
 public class StpInterfaceImpl implements StpInterface {
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
+        //不是默认的登录类型则不查询权限列表
+        if (!StpUtil.getLoginType().equals(loginType)){
+            return Collections.emptyList();
+        }
         // 1. 声明权限码集合
         List<String> permissionList = new ArrayList<>();
 
         // 2. 遍历角色列表，查询拥有的权限码
         for (String roleId : getRoleList(loginId, loginType)) {
             SaSession roleSession = SaSessionCustomUtil.getSessionById("role-" + roleId);
-            List<String> list = roleSession.get("Permission_List", () -> queryPermListFromDb(roleId));
+            List<String> list = roleSession.get(SaSession.PERMISSION_LIST, () -> queryPermListFromDb(roleId));
             permissionList.addAll(list);
         }
 
@@ -45,8 +49,12 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Override
     public List<String> getRoleList(Object loginId, String loginType) {
+        //不是默认的登录类型则不查询角色列表
+        if (!StpUtil.getLoginType().equals(loginType)){
+            return Collections.emptyList();
+        }
         SaSession session = StpUtil.getSessionByLoginId(loginId);
-        return session.get("Role_List", () -> queryRoleListFromDb((String) loginId));
+        return session.get(SaSession.ROLE_LIST, () -> queryRoleListFromDb((String) loginId));
     }
 
     private List<String> queryPermListFromDb(String roleId){
