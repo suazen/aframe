@@ -7,6 +7,7 @@ import me.suazen.aframe.core.exception.BaseException;
 import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
 import me.suazen.aframe.web.sse.handler.StreamEventHandler;
 import me.suazen.aframe.web.util.ServletUtil;
+import org.redisson.api.RAtomicLong;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -19,10 +20,13 @@ import java.io.IOException;
 public class OpenaiStreamHandler implements StreamEventHandler {
     private final SseEmitter sseEmitter;
 
+    private final RAtomicLong times;
+
     private StringBuilder contentBuilder;
 
-    public OpenaiStreamHandler(SseEmitter sseEmitter){
+    public OpenaiStreamHandler(SseEmitter sseEmitter,RAtomicLong times){
         this.sseEmitter = sseEmitter;
+        this.times = times;
         contentBuilder = new StringBuilder();
     }
 
@@ -59,6 +63,7 @@ public class OpenaiStreamHandler implements StreamEventHandler {
     @Override
     public void onComplete() {
         sseEmitter.complete();
+        times.decrementAndGet();
     }
 
     public String getContent(){

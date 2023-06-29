@@ -14,9 +14,9 @@ import java.util.List;
  * @date 2023-04-23
  **/
 public class Codegen {
-    private static final String DB_URL = "jdbc:mysql://121.37.3.24:3306/aframe?useUnicode=true&characterEncoding=utf-8&useSSL=false";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "admin123";
+    private static final String DB_URL = "jdbc:mysql://43.136.57.159:7780/aframe?useUnicode=true";
+    private static final String DB_USER = "aframe";
+    private static final String DB_PASSWORD = "aframeSuper123";
 
     public static void main(String[] args) {
 

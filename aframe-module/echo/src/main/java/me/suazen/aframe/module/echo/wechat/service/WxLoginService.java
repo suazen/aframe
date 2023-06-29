@@ -9,6 +9,7 @@ import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.module.echo.common.entity.WxUser;
 import me.suazen.aframe.module.echo.common.mapper.WxUserMapper;
+import me.suazen.aframe.module.echo.member.service.MemberService;
 import me.suazen.aframe.module.echo.wechat.dto.StateDTO;
 import me.suazen.aframe.module.echo.wechat.dto.WxLoginBody;
 import me.suazen.aframe.module.echo.wechat.util.StpWxUtil;
@@ -35,6 +36,8 @@ public class WxLoginService extends BaseLoginService<WxUser,WxUserMapper> {
 
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private MemberService memberService;
 
     @Autowired
     public WxLoginService(WxUserMapper wxUserMapper){
@@ -56,11 +59,13 @@ public class WxLoginService extends BaseLoginService<WxUser,WxUserMapper> {
         WxUser user = new WxUser().wxId().eq(wxUserInfo.getString("openid")).one();
         if (user == null){
             user = new WxUser();
-            //do register
+            //注册新用户
             user.setNickname(wxUserInfo.getString("nickname"));
             user.setWxId(wxUserInfo.getString("openid"));
             user.setAvatar(wxUserInfo.getString("headimgurl"));
             mapper.insert(user);
+            // 新用户默认免费会员
+            memberService.newFreeMember(user.getUserId());
         } else {
             BeanUtil.copyProperties(wxUserInfo,user);
             user.setAvatar(wxUserInfo.getString("headimgurl"));

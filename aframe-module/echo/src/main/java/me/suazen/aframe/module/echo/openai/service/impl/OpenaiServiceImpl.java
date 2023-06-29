@@ -10,11 +10,13 @@ import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
 import me.suazen.aframe.module.echo.config.tasker.SaveChatHistoryTasker;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
+import me.suazen.aframe.module.echo.member.service.MemberService;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.handler.OpenaiStreamHandler;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
 import me.suazen.aframe.module.echo.wechat.util.StpWxUtil;
 import me.suazen.aframe.web.sse.SseServer;
+import org.redisson.api.RAtomicLong;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -31,12 +33,19 @@ public class OpenaiServiceImpl implements OpenaiService {
 
     @Resource
     private RedissonClient redissonClient;
+    @Resource
+    private MemberService memberService;
 
     @Override
     public SseEmitter sendMessage(ChatDTO dto) {
         String userId = (String) StpWxUtil.stpLogic.getLoginId();
+        RAtomicLong times = memberService.getUsageFromRedis(userId);
+        //redis缓存中次数小于0并且执行更新操作后仍小于0
+        if (times.get() <= 0 && memberService.initMemberUsage(userId) <= 0){
+            throw new BusinessException("您的剩余次数为0次，请联系客服购买次数");
+        }
         return SseServer.builder(0).onProcess(sseEmitter -> {
-            OpenaiStreamHandler streamHandler = new OpenaiStreamHandler(sseEmitter);
+            OpenaiStreamHandler streamHandler = new OpenaiStreamHandler(sseEmitter,times);
             //从redis获取聊天记录
             RList<ChatMessage> messages = getChatMessages(dto.getUuid());
             //如果有content则添加，没有表示重新回答
