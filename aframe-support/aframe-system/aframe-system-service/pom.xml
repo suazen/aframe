@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>me.suazen.aframe</groupId>
-            <artifactId>aframe-core</artifactId>
+            <artifactId>aframe-system-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

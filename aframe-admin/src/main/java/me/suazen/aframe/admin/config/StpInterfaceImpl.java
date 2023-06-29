@@ -1,4 +1,4 @@
-package me.suazen.aframe.auth.config;
+package me.suazen.aframe.admin.config;
 
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.session.SaSessionCustomUtil;

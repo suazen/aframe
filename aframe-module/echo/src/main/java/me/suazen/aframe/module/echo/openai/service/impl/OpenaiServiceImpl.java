@@ -8,7 +8,7 @@ import me.suazen.aframe.module.echo.common.constants.Constant;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
-import me.suazen.aframe.module.echo.common.tasker.SaveChatHistoryTasker;
+import me.suazen.aframe.module.echo.config.tasker.SaveChatHistoryTasker;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.handler.OpenaiStreamHandler;

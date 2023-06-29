@@ -3,7 +3,7 @@ package me.suazen.aframe.module.echo.common.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import me.suazen.aframe.system.core.base.User;
+import me.suazen.aframe.core.base.pojo.User;
 
 import java.io.Serializable;
 

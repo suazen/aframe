@@ -5,15 +5,18 @@
 
 ```yaml
 aframe
---aframe-parent 项目依赖包
+--aframe-support 基础支撑包
+----aframe-auth 鉴权模块（依赖web模块）
+----aframe-core 基础模块
+----aframe-web web模块（依赖core模块）
+----aframe-system 系统模块
+------aframe-system-core 系统基础模块（依赖core）
+------aframe-system-service 系统服务模块（依赖system-core、web）
+----aframe-generator 代码生成模块
+--aframe-admin 后台模块（依赖auth、system-service)
+--aframe-monitor 监控模块
 --aframe-starter 启动模块
---aframe-framework 框架包
-----framework-core 基础支撑
-----framework-security 权限控制
---aframe-system 系统模块
-----system-core
-----system-service
---aframe-auth 鉴权模块
+--aframe-module 业务模块
 ...
 ```
 
@@ -22,7 +25,8 @@ aframe
 
 - springboot 
 - hutool
-- mybatis-flex
+- mybatis-plus
 - alibaba druid
 - fastjson
 - redisson
+- sa-token

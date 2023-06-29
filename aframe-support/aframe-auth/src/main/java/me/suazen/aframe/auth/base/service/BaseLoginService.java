@@ -6,7 +6,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.suazen.aframe.auth.base.dto.UserInfo;
 import me.suazen.aframe.core.util.DateUtil;
-import me.suazen.aframe.system.core.base.User;
+import me.suazen.aframe.core.base.pojo.User;
 import me.suazen.aframe.web.util.IpUtils;
 import me.suazen.aframe.web.util.ServletUtil;
 

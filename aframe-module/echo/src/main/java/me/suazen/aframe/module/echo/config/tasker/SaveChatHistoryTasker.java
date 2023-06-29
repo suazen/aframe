@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.common.tasker;
+package me.suazen.aframe.module.echo.config.tasker;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.knuddels.jtokkit.Encodings;

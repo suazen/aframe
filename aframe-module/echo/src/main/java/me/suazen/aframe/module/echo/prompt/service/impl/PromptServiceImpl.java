@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.promptManager.service.impl;
+package me.suazen.aframe.module.echo.prompt.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import me.suazen.aframe.core.constants.GlobalConstant;
@@ -8,7 +8,7 @@ import me.suazen.aframe.module.echo.common.entity.PromptSetting;
 import me.suazen.aframe.module.echo.common.entity.PromptTemplate;
 import me.suazen.aframe.module.echo.common.mapper.PromptSettingMapper;
 import me.suazen.aframe.module.echo.common.mapper.PromptTemplateMapper;
-import me.suazen.aframe.module.echo.promptManager.service.PromptService;
+import me.suazen.aframe.module.echo.prompt.service.PromptService;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;

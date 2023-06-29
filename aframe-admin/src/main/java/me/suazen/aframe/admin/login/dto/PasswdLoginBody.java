@@ -1,4 +1,4 @@
-package me.suazen.aframe.auth.login.passwdlogin.dto;
+package me.suazen.aframe.admin.login.dto;
 
 import lombok.Getter;
 import lombok.Setter;

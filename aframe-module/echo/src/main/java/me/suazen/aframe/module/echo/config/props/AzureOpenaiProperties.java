@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.common.props;
+package me.suazen.aframe.module.echo.config.props;
 
 import lombok.Getter;
 import lombok.Setter;

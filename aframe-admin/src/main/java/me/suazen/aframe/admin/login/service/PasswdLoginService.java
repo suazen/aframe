@@ -1,11 +1,11 @@
-package me.suazen.aframe.auth.login.passwdlogin.service;
+package me.suazen.aframe.admin.login.service;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SmUtil;
 import com.alibaba.fastjson2.JSONObject;
 import me.suazen.aframe.auth.base.exception.UserPasswordNotMatchException;
 import me.suazen.aframe.auth.base.service.BaseLoginService;
-import me.suazen.aframe.auth.login.passwdlogin.dto.PasswdLoginBody;
+import me.suazen.aframe.admin.login.dto.PasswdLoginBody;
 import me.suazen.aframe.system.core.entity.SysUser;
 import me.suazen.aframe.system.core.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;

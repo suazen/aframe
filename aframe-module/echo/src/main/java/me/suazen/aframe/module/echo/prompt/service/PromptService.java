@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.promptManager.service;
+package me.suazen.aframe.module.echo.prompt.service;
 
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
 import me.suazen.aframe.module.echo.common.entity.PromptTemplate;

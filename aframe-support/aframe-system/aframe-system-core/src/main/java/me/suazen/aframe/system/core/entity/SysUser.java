@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import me.suazen.aframe.system.core.base.User;
+import me.suazen.aframe.core.base.pojo.User;
 
 import java.io.Serializable;
 
@@ -44,26 +44,6 @@ public class SysUser implements Serializable, User {
      * 用户昵称
      */
     private String nickname;
-
-    /**
-     * 微信id
-     */
-    private String wxId;
-
-    /**
-     * 性别
-     */
-    private String sex;
-
-    /**
-     * 省份
-     */
-    private String province;
-
-    /**
-     * 城市
-     */
-    private String city;
 
     /**
      * 头像

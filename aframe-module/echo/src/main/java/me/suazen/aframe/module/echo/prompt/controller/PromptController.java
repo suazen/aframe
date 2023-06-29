@@ -1,9 +1,9 @@
-package me.suazen.aframe.module.echo.promptManager.controller;
+package me.suazen.aframe.module.echo.prompt.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
 import me.suazen.aframe.module.echo.common.entity.PromptTemplate;
-import me.suazen.aframe.module.echo.promptManager.service.PromptService;
+import me.suazen.aframe.module.echo.prompt.service.PromptService;
 import me.suazen.aframe.web.domain.AjaxResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package me.suazen.aframe.system.core.base;
+package me.suazen.aframe.core.base.pojo;
 
 /**
  * @author sujizhen

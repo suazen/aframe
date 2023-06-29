@@ -22,16 +22,6 @@
         </dependency>
         <dependency>
             <groupId>me.suazen.aframe</groupId>
-            <artifactId>aframe-system-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>me.suazen.aframe</groupId>
-            <artifactId>aframe-auth</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>me.suazen.aframe</groupId>
             <artifactId>echo</artifactId>
             <version>${project.version}</version>
         </dependency>

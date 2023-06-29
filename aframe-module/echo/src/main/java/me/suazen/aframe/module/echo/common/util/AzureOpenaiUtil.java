@@ -8,7 +8,7 @@ import me.suazen.aframe.module.echo.common.constants.Constant;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
-import me.suazen.aframe.module.echo.common.props.AzureOpenaiProperties;
+import me.suazen.aframe.module.echo.config.props.AzureOpenaiProperties;
 import me.suazen.aframe.web.sse.SseClient;
 import me.suazen.aframe.web.sse.handler.StreamEventHandler;
 import org.redisson.api.RList;
