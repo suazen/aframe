@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.exception.BusinessException;
+import me.suazen.aframe.module.echo.config.props.WeChatProperties;
 
 /**
  * @author sujizhen

@@ -7,6 +7,8 @@ package me.suazen.aframe.core.base.pojo;
 public interface User {
     String getUserId();
 
+    String getUsername();
+
     void setLoginIp(String ip);
 
     void setLoginDate(String date);

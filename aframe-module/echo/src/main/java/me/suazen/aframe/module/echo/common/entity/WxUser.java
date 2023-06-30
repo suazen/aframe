@@ -59,4 +59,9 @@ public class WxUser implements Serializable, User {
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateTime;
+
+    @Override
+    public String getUsername() {
+        return nickname;
+    }
 }
