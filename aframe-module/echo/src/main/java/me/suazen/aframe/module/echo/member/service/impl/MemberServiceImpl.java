@@ -13,6 +13,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ public class MemberServiceImpl implements MemberService {
         member.setMemberType(MemberType.FREE.getValue());
         member.setStartTime(DateUtil.nowSimple());
         member.setUsableDegree(10);
+        member.setExpiryDate(0);
         memberMapper.insert(member);
     }
 
@@ -41,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
     public int initMemberUsage(String userId) {
         RAtomicLong times = redissonClient.getAtomicLong(Constant.REDIS_KEY_REMAINS_TIME+userId);
         times.set(updateMemberUsage(userId));
+        times.expire(Duration.ofHours(12));
         return (int) times.get();
     }
 
@@ -49,6 +52,7 @@ public class MemberServiceImpl implements MemberService {
         RAtomicLong times = redissonClient.getAtomicLong(Constant.REDIS_KEY_REMAINS_TIME+userId);
         if (!times.isExists()){
             times.set(updateMemberUsage(userId));
+            times.expire(Duration.ofHours(12));
         }
         return times;
     }
@@ -60,8 +64,7 @@ public class MemberServiceImpl implements MemberService {
         }
         return MemberType.getByValue(member.getMemberType())
                 .getAction()
-                .getUsageCalc()
-                .apply(member);
+                .usageCalc(member);
     }
 
 }

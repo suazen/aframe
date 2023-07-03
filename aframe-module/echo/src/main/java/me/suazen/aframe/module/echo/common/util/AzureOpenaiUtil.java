@@ -10,7 +10,7 @@ import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
 import me.suazen.aframe.module.echo.config.props.AzureOpenaiProperties;
 import me.suazen.aframe.web.sse.SseClient;
-import me.suazen.aframe.web.sse.handler.StreamEventHandler;
+import okhttp3.sse.EventSourceListener;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
@@ -27,13 +27,13 @@ public class AzureOpenaiUtil {
 //            "You will only answer professional questions relevant to your role. Our conversation will be under Chinese.";
     private static final String role_prompt = "I want you to act as a help assistant. I will provide you with a list of questions and you will answer them. Our conversation will be under Chinese.";
 
-    public static void callStream(ChatRequest request, StreamEventHandler eventHandler) {
+    public static void callStream(ChatRequest request, EventSourceListener listener){
         promptSetting(request);
-        SseClient.build(url)
+        SseClient.create(url)
                 .method("POST")
                 .header("api-key",properties.getApiKey())
                 .body(request.toString().replaceAll("(\n)+","  ").trim())
-                .execute(eventHandler);
+                .execute(listener);
     }
 
     private static void promptSetting(ChatRequest request){

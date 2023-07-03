@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.wechat.util;
+package me.suazen.aframe.module.echo.common.util;
 
 import cn.dev33.satoken.stp.StpLogic;
 

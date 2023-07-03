@@ -4,7 +4,7 @@ import cn.dev33.satoken.listener.SaTokenListenerForSimple;
 import cn.dev33.satoken.stp.SaLoginModel;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.module.echo.member.service.MemberService;
-import me.suazen.aframe.module.echo.wechat.util.StpWxUtil;
+import me.suazen.aframe.module.echo.common.util.StpWxUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

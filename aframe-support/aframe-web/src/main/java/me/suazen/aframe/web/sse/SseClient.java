@@ -1,41 +1,33 @@
 package me.suazen.aframe.web.sse;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
-import me.suazen.aframe.web.sse.handler.StreamEventHandler;
-import org.springframework.util.StreamUtils;
+import okhttp3.*;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
+/**
+ * @author sujizhen
+ * @date 2023-07-03
+ **/
 @Slf4j
 public class SseClient {
     private final String url;
 
     private String method;
 
-    private final Map<String,String> headers = new HashMap<>();
-
-    private boolean doOutput = true;
-
-    private boolean doInput = true;
-
-    private boolean useCache = false;
-
-    private int timeout = 60 * 1000;
-
     private String body;
+
+    private final Map<String,String> headers = new HashMap<>();
 
     private SseClient(String url){
         this.url = url;
     }
 
-    public static SseClient build(String url){
+    public static SseClient create(String url){
         return new SseClient(url);
     }
 
@@ -44,12 +36,7 @@ public class SseClient {
         return this;
     }
 
-    public SseClient body(String body){
-        this.body = body;
-        return this;
-    }
-
-    public SseClient header(String key,String val){
+    public SseClient header(String key, String val){
         this.headers.put(key,val);
         return this;
     }
@@ -61,83 +48,20 @@ public class SseClient {
         return this;
     }
 
-    public SseClient timeout(int timeout){
-        this.timeout = timeout;
+    public SseClient body(String body){
+        this.body = body;
         return this;
     }
 
-    public SseClient doOutput(boolean doOutput){
-        this.doOutput = doOutput;
-        return this;
-    }
-
-    public SseClient doInput(boolean doInput){
-        this.doInput = doInput;
-        return this;
-    }
-
-    public SseClient useCache(boolean useCache){
-        this.useCache = useCache;
-        return this;
-    }
-
-    public void execute(StreamEventHandler eventHandler){
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(this.url);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod(method);
-            urlConnection.setDoOutput(doOutput);
-            urlConnection.setDoInput(doInput);
-            urlConnection.setUseCaches(useCache);
-            urlConnection.setRequestProperty("Connection", "Keep-Alive");
-            urlConnection.setRequestProperty("Charset", "UTF-8");
-            urlConnection.setReadTimeout(timeout);
-            urlConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-            this.headers.forEach(urlConnection::setRequestProperty);
-            this.writeBody(urlConnection);
-            InputStream inputStream = urlConnection.getInputStream();
-            readStream(inputStream,eventHandler);
-        }catch (IOException e){
-            log.error("SSE请求失败",e);
-            try {
-                eventHandler.writeError(StreamUtils.copyToString(Objects.requireNonNull(urlConnection).getErrorStream(), StandardCharsets.UTF_8));
-            }catch (NullPointerException | IOException ex){
-                eventHandler.writeError(e.getMessage());
-            }
-        }
-    }
-
-    private void readStream(InputStream inputStream,StreamEventHandler eventHandler) throws IOException{
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        int i = 0;
-        log.debug("------开始接收openai数据------");
-        while ((line = reader.readLine()) != null) {
-            if (StrUtil.isNotBlank(line)){
-                log.debug("{}：{}",++i,line);
-            }
-            // 处理数据接口
-            eventHandler.readStream(line);
-        }
-        log.debug("------openai数据接收完毕------");
-        eventHandler.onComplete();
-        reader.close();
-    }
-
-    /**
-     * 写body
-     */
-    private void writeBody(HttpURLConnection conn) throws IOException{
-        if (StrUtil.isEmpty(this.body)){
-            return;
-        }
-        log.debug("body：{}",this.body);
-        byte[] dataBytes = this.body.getBytes();
-        conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
-        OutputStream os = conn.getOutputStream();
-        os.write(dataBytes);
-        os.flush();
-        os.close();
+    public void execute(EventSourceListener listener){
+        Request request = new Request.Builder()
+                .url(this.url)
+                .header("Connection", "Keep-Alive")
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .headers(Headers.of(this.headers))
+                .method(this.method, RequestBody.create(this.body, MediaType.get("application/json;charset=UTF-8")))
+                .build();
+        //创建事件
+        EventSources.createFactory(SpringUtil.getBean(OkHttpClient.class)).newEventSource(request, listener);
     }
 }

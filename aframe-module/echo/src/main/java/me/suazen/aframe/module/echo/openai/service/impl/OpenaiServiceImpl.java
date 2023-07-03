@@ -10,13 +10,13 @@ import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
 import me.suazen.aframe.module.echo.common.entity.Member;
 import me.suazen.aframe.module.echo.common.exception.UsageLimitException;
-import me.suazen.aframe.module.echo.config.tasker.SaveChatHistoryTasker;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
+import me.suazen.aframe.module.echo.common.util.StpWxUtil;
+import me.suazen.aframe.module.echo.config.tasker.SaveChatHistoryTasker;
 import me.suazen.aframe.module.echo.member.service.MemberService;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
-import me.suazen.aframe.module.echo.openai.handler.OpenaiStreamHandler;
+import me.suazen.aframe.module.echo.openai.handler.OpenaiStreamEventListener;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
-import me.suazen.aframe.module.echo.wechat.util.StpWxUtil;
 import me.suazen.aframe.web.sse.SseServer;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RList;
@@ -50,22 +50,22 @@ public class OpenaiServiceImpl implements OpenaiService {
                 throw new UsageLimitException(member.getMemberType(),remains);
             }
         }
-        return SseServer.builder(0).onProcess(sseEmitter -> {
-            OpenaiStreamHandler streamHandler = new OpenaiStreamHandler(sseEmitter,times);
-            //从redis获取聊天记录
-            RList<ChatMessage> messages = getChatMessages(dto.getUuid());
-            //如果有content则添加，没有表示重新回答
-            if (StrUtil.isNotBlank(dto.getContent())) {
-                messages.add(ChatMessage.userMsg(dto.getContent().trim()));
-                AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
-            }
-            //调用openai接口
-            AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages.readAll()),streamHandler);
-            //保存接口返回的完整内容
-            messages.add(ChatMessage.botMsg(streamHandler.getContent()));
-            AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"assistant",streamHandler.getContent(),messages.size()-1));
-            messages.expire(Duration.ofHours(2));
-        }).build();
+        SseEmitter sseEmitter = SseServer.builder(0).build();
+        OpenaiStreamEventListener listener = new OpenaiStreamEventListener(sseEmitter,times);
+        //从redis获取聊天记录
+        RList<ChatMessage> messages = getChatMessages(dto.getUuid());
+        //如果有content则添加，没有表示重新回答
+        if (StrUtil.isNotBlank(dto.getContent())) {
+            messages.add(ChatMessage.userMsg(dto.getContent().trim()));
+            AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
+        }
+        //调用openai接口
+        AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages.readAll()),listener);
+        //保存接口返回的完整内容
+        messages.add(ChatMessage.botMsg(listener.getContent()));
+        AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"assistant",listener.getContent(),messages.size()-1));
+        messages.expire(Duration.ofHours(2));
+        return sseEmitter;
     }
 
     @Override

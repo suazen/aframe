@@ -4,9 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.suazen.aframe</groupId>
+    <parent>
+        <groupId>me.suazen.aframe</groupId>
+        <artifactId>aframe</artifactId>
+        <version>0.0.1</version>
+    </parent>
     <artifactId>aframe-starter</artifactId>
-    <version>0.0.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

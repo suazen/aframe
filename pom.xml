@@ -9,6 +9,13 @@
     <name>aframe</name>
     <description>aframe</description>
 
+    <modules>
+        <module>aframe-starter</module>
+        <module>aframe-admin</module>
+        <module>aframe-module</module>
+        <module>aframe-support</module>
+    </modules>
+
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
