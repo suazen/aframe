@@ -8,15 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.auth.base.service.BaseLoginService;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.module.echo.common.entity.WxUser;
-import me.suazen.aframe.module.echo.common.mapper.WxUserMapper;
+import me.suazen.aframe.module.echo.common.util.StpWxUtil;
+import me.suazen.aframe.module.echo.common.util.WeChatAuthUtil;
 import me.suazen.aframe.module.echo.member.service.MemberService;
 import me.suazen.aframe.module.echo.wechat.dto.StateDTO;
 import me.suazen.aframe.module.echo.wechat.dto.WxLoginBody;
-import me.suazen.aframe.module.echo.common.util.StpWxUtil;
-import me.suazen.aframe.module.echo.common.util.WeChatAuthUtil;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @Service("WECHAT_LOGIN_HANDLER")
 @Slf4j
-public class WxLoginService extends BaseLoginService<WxUser,WxUserMapper> {
+public class WxLoginService extends BaseLoginService<WxUser> {
     private static final String WX_LOGIN_STATE = "wx-login-state:";
     private static final String STATE_NO_LOGIN = "noLogin";
     private static final String STATE_SCANNED = "scanned";
@@ -39,9 +37,7 @@ public class WxLoginService extends BaseLoginService<WxUser,WxUserMapper> {
     @Resource
     private MemberService memberService;
 
-    @Autowired
-    public WxLoginService(WxUserMapper wxUserMapper){
-        this.mapper = wxUserMapper;
+    public WxLoginService(){
         this.stpLogic = StpWxUtil.stpLogic;
     }
 

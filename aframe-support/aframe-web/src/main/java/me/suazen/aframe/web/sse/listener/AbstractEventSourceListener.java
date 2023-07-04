@@ -28,6 +28,7 @@ public abstract class AbstractEventSourceListener extends EventSourceListener {
             }
         }
         afterFailure(msg);
+        eventSource.cancel();
     }
 
     @Override

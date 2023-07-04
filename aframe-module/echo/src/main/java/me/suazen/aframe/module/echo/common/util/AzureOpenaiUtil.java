@@ -4,7 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.constants.GlobalConstant;
 import me.suazen.aframe.core.util.DateUtil;
-import me.suazen.aframe.module.echo.common.constants.Constant;
+import me.suazen.aframe.module.echo.common.constants.RedisKey;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
@@ -37,7 +37,7 @@ public class AzureOpenaiUtil {
     }
 
     private static void promptSetting(ChatRequest request){
-        RList<ChatMessage> promptSettings = SpringUtil.getBean(RedissonClient.class).getList(Constant.REDIS_KEY_PROMPT_SETTING);
+        RList<ChatMessage> promptSettings = SpringUtil.getBean(RedissonClient.class).getList(RedisKey.openai_prompt_setting.name());
         if (promptSettings.isEmpty()){
             List<PromptSetting> promptSettingList = new PromptSetting()
                     .state().eq(GlobalConstant.YES)
@@ -48,6 +48,6 @@ public class AzureOpenaiUtil {
                     .collect(Collectors.toList()));
         }
         request.getMessages().addAll(0,promptSettings.readAll());
-        request.getMessages().add(0,ChatMessage.systemPrompt("Today is %s %s",DateUtil.today(),DateUtil.thisDayOfWeekEnum().name()));
+        request.getMessages().add(0,ChatMessage.systemPrompt("Now is %s %s",DateUtil.now(),DateUtil.thisDayOfWeekEnum().name()));
     }
 }

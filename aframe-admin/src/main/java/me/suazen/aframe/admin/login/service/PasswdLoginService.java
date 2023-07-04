@@ -16,11 +16,9 @@ import org.springframework.stereotype.Service;
  * @date 2023-06-06
  **/
 @Service("PASSWD_LOGIN_HANDLER")
-public class PasswdLoginService extends BaseLoginService<SysUser, SysUserMapper> {
+public class PasswdLoginService extends BaseLoginService<SysUser> {
 
-    @Autowired
-    public PasswdLoginService(SysUserMapper sysUserMapper){
-        this.mapper = sysUserMapper;
+    public PasswdLoginService(){
         this.stpLogic = StpUtil.getStpLogic();
     }
 

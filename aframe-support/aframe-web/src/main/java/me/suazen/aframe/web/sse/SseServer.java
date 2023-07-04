@@ -34,6 +34,7 @@ public class SseServer {
 
     private void initDefault(){
         this.onCompletion(()-> log.info("SSE传输完毕，耗时 {}",DateUtil.formatBetween(new Date().getTime()-startTime, BetweenFormatter.Level.SECOND)));
+        this.onTimeout(this.sseEmitter::complete);
         this.onError((e)->{
             log.error("SSE传输异常",e);
             sseEmitter.completeWithError(e);

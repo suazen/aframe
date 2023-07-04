@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @PostMapping("/{type}/login")
     public AjaxResult login(@PathVariable("type")String type, @RequestBody @Validated JSONObject loginBody){
-        BaseLoginService<?,?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
+        BaseLoginService<?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
         if (loginService == null){
             return AjaxResult.error("Method Not Found");
         }
@@ -21,7 +21,7 @@ public class AuthController {
 
     @GetMapping("/{type}/getInfo")
     public AjaxResult getInfo(@PathVariable("type")String type){
-        BaseLoginService<?,?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
+        BaseLoginService<?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
         SaSession session = loginService.stpLogic.getSession();
         if (session.get(SaSession.USER) == null){
             session.set(SaSession.USER, loginService.getUserInfo(null));
@@ -31,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/{type}/logout")
     public AjaxResult logout(@PathVariable("type")String type){
-        BaseLoginService<?,?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
+        BaseLoginService<?> loginService = SpringUtil.getBean(type.toUpperCase()+"_LOGIN_HANDLER", BaseLoginService.class);
         loginService.stpLogic.logout();
         return AjaxResult.success();
     }

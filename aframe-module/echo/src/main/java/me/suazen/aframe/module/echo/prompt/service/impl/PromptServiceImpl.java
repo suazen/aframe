@@ -3,7 +3,7 @@ package me.suazen.aframe.module.echo.prompt.service.impl;
 import cn.hutool.core.util.StrUtil;
 import me.suazen.aframe.core.constants.GlobalConstant;
 import me.suazen.aframe.core.util.RandomUtil;
-import me.suazen.aframe.module.echo.common.constants.Constant;
+import me.suazen.aframe.module.echo.common.constants.RedisKey;
 import me.suazen.aframe.module.echo.common.entity.PromptSetting;
 import me.suazen.aframe.module.echo.common.entity.PromptTemplate;
 import me.suazen.aframe.module.echo.common.mapper.PromptSettingMapper;
@@ -40,7 +40,7 @@ public class PromptServiceImpl implements PromptService {
 
     @Override
     public List<String> queryPrompt(String query) {
-        RList<String> prompts = redissonClient.getList(Constant.REDIS_KEY_PROMPT_TEMPLATE);
+        RList<String> prompts = redissonClient.getList(RedisKey.openai_prompt_template.name());
         if (!prompts.isExists()){
             List<PromptTemplate> templates = new PromptTemplate().select(PromptTemplate.CONTENT).state().eq(GlobalConstant.YES).list();
             prompts.addAll(templates.stream().map(PromptTemplate::getContent).collect(Collectors.toList()));
@@ -71,7 +71,7 @@ public class PromptServiceImpl implements PromptService {
 
     @Override
     public void refresh() {
-        RList<String> prompts = redissonClient.getList(Constant.REDIS_KEY_PROMPT_TEMPLATE);
+        RList<String> prompts = redissonClient.getList(RedisKey.openai_prompt_template.name());
         prompts.clear();
         List<PromptTemplate> hints = new PromptTemplate().select(PromptTemplate.CONTENT).state().eq(GlobalConstant.YES).list();
         prompts.addAll(hints.stream().map(PromptTemplate::getContent).collect(Collectors.toList()));
@@ -81,6 +81,6 @@ public class PromptServiceImpl implements PromptService {
     public void addSetting(PromptSetting promptSetting) {
         promptSetting.setState(GlobalConstant.YES);
         promptSettingMapper.insert(promptSetting);
-        redissonClient.getList(Constant.REDIS_KEY_PROMPT_SETTING).clear();
+        redissonClient.getList(RedisKey.openai_prompt_setting.name()).clear();
     }
 }

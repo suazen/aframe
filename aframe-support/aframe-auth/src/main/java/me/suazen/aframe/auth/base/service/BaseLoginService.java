@@ -5,8 +5,8 @@ import cn.dev33.satoken.stp.StpLogic;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import me.suazen.aframe.auth.base.dto.UserInfo;
-import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.core.base.pojo.User;
+import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.web.util.IpUtils;
 import me.suazen.aframe.web.util.ServletUtil;
 
@@ -16,10 +16,10 @@ import java.util.Optional;
  * @author sujizhen
  * @date 2023-06-06
  **/
-public abstract class BaseLoginService<T extends User,M extends BaseMapper<T>>{
+public abstract class BaseLoginService<T extends User>{
     public StpLogic stpLogic;
 
-    protected M mapper;
+    protected BaseMapper<T> mapper;
 
     protected abstract T doCheck(JSONObject loginBody);
 

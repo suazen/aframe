@@ -4,7 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.core.manager.AsyncManager;
-import me.suazen.aframe.module.echo.common.constants.Constant;
+import me.suazen.aframe.module.echo.common.constants.RedisKey;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.entity.ChatHis;
@@ -50,8 +50,7 @@ public class OpenaiServiceImpl implements OpenaiService {
                 throw new UsageLimitException(member.getMemberType(),remains);
             }
         }
-        SseEmitter sseEmitter = SseServer.builder(0).build();
-        OpenaiStreamEventListener listener = new OpenaiStreamEventListener(sseEmitter,times);
+        SseEmitter sseEmitter = SseServer.builder(Duration.ofMinutes(5).toMillis()).build();
         //从redis获取聊天记录
         RList<ChatMessage> messages = getChatMessages(dto.getUuid());
         //如果有content则添加，没有表示重新回答
@@ -60,11 +59,16 @@ public class OpenaiServiceImpl implements OpenaiService {
             AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
         }
         //调用openai接口
-        AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages.readAll()),listener);
-        //保存接口返回的完整内容
-        messages.add(ChatMessage.botMsg(listener.getContent()));
-        AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"assistant",listener.getContent(),messages.size()-1));
-        messages.expire(Duration.ofHours(2));
+        AzureOpenaiUtil.callStream(new ChatRequest().setMessages(messages.readAll()), new OpenaiStreamEventListener(sseEmitter) {
+            @Override
+            public void onComplete() {
+                times.decrementAndGet();
+                //保存接口返回的完整内容
+                messages.add(ChatMessage.botMsg(getContent()));
+                AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"assistant",getContent(),messages.size()-1));
+                messages.expire(Duration.ofHours(2));
+            }
+        });
         return sseEmitter;
     }
 
@@ -79,7 +83,7 @@ public class OpenaiServiceImpl implements OpenaiService {
     }
 
     private RList<ChatMessage> getChatMessages(String uuid){
-        RList<ChatMessage> redisList = redissonClient.getList(Constant.REDIS_KEY_CHAT_HIS +uuid);
+        RList<ChatMessage> redisList = redissonClient.getList(RedisKey.Folder.openai_chat_his.key(uuid));
         if (redisList.isEmpty()){
             List<ChatHis> chatHisList = new ChatHis()
                     .conversationId().eq(uuid)

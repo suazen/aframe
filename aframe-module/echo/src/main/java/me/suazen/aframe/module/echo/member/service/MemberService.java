@@ -1,5 +1,6 @@
 package me.suazen.aframe.module.echo.member.service;
 
+import me.suazen.aframe.module.echo.common.entity.Member;
 import org.redisson.api.RAtomicLong;
 
 /**
@@ -8,6 +9,8 @@ import org.redisson.api.RAtomicLong;
  **/
 public interface MemberService {
     void newFreeMember(String userId);
+
+    void updateMemberInfo(Member member);
 
     int initMemberUsage(String userId);
 
