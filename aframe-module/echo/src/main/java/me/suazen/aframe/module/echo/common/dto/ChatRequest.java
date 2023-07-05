@@ -25,11 +25,6 @@ public class ChatRequest implements Serializable {
         this.temperature = 0.5;
     }
 
-    public ChatRequest(boolean stream){
-        this.messages = new ArrayList<>();
-        this.stream = stream;
-    }
-
     @Override
     public String toString() {
         return JSON.toJSONString(this);

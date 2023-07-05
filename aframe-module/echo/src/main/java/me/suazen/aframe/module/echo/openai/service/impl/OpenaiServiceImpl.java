@@ -56,6 +56,7 @@ public class OpenaiServiceImpl implements OpenaiService {
         //如果有content则添加，没有表示重新回答
         if (StrUtil.isNotBlank(dto.getContent())) {
             messages.add(ChatMessage.userMsg(dto.getContent().trim()));
+            messages.expire(Duration.ofHours(2));
             AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"user",dto.getContent().trim(),messages.size()-1));
         }
         //调用openai接口
@@ -66,7 +67,6 @@ public class OpenaiServiceImpl implements OpenaiService {
                 //保存接口返回的完整内容
                 messages.add(ChatMessage.botMsg(getContent()));
                 AsyncManager.me().execute(new SaveChatHistoryTasker(userId,dto.getUuid(),"assistant",getContent(),messages.size()-1));
-                messages.expire(Duration.ofHours(2));
             }
         });
         return sseEmitter;
