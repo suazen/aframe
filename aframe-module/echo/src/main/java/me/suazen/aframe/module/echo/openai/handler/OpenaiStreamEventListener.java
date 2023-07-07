@@ -73,6 +73,8 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
                         JSONObject error = bodyJson.getJSONObject("error");
                         if ("context_length_exceeded".equals(error.getString("code"))){
                             msg = "抱歉，本轮对话已达到最大限定字数😭 要继续使用请点击左下方发起新的对话👇";
+                        }else if ("content_filter".equals(error.getString("code"))){
+                            msg = "您的问题中存在限制内容🙈，请换个话题吧~";
                         }
                     }
                 }

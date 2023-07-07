@@ -10,6 +10,7 @@ import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.web.util.IpUtils;
 import me.suazen.aframe.web.util.ServletUtil;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,7 @@ import java.util.Optional;
 public abstract class BaseLoginService<T extends User>{
     public StpLogic stpLogic;
 
+    @Resource
     protected BaseMapper<T> mapper;
 
     protected abstract T doCheck(JSONObject loginBody);
