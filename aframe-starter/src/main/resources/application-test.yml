@@ -29,3 +29,8 @@ openai:
     model: tongpinai
     version: 2023-06-01-preview
     api-key: a52578860eb6473ab8d564f053769b08
+
+plugin:
+  bing:
+    api-key: 7eb364e7cf3c403996b736c95b8d6143
+    end-point: https://api.bing.microsoft.com

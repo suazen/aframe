@@ -23,12 +23,16 @@ public class AzureOpenaiUtil {
 
     private static final String url = "https://"+properties.getEndPoint()+".openai.azure.com/openai/deployments/"+properties.getModel()+"/chat/completions?api-version="+properties.getVersion();
 
-//    private static final String role_prompt = "I want you to act as a product manager. You will act as the product manager for a company that provides products for its customers. Your job is to develop products for their specific needs and goals. You should act as an interface designer, product manager, and developer. " +
-//            "You will only answer professional questions relevant to your role. Our conversation will be under Chinese.";
-    private static final String role_prompt = "I want you to act as a help assistant. I will provide you with a list of questions and you will answer them. Our conversation will be under Chinese.";
+    private static final String search_fun_prompt = "If user ask you about the real-time information, you should reply a json start with “$f” format like $f{“action”:”BingSearch”,”param”:{”query”:{ the key word }}}.";
 
     public static void callStream(ChatRequest request, EventSourceListener listener){
-        promptSetting(request);
+        callStream(true,request,listener);
+    }
+
+    public static void callStream(boolean systemPrompt,ChatRequest request, EventSourceListener listener){
+        if (systemPrompt){
+            promptSetting(request);
+        }
         SseClient.create(url)
                 .method("POST")
                 .header("api-key",properties.getApiKey())
@@ -47,7 +51,10 @@ public class AzureOpenaiUtil {
                     .map(prompt-> ChatMessage.systemPrompt(prompt.getPrompt()))
                     .collect(Collectors.toList()));
         }
-        request.getMessages().addAll(0,promptSettings.readAll());
-        request.getMessages().add(0,ChatMessage.systemPrompt("Now is %s %s",DateUtil.now(),DateUtil.thisDayOfWeekEnum().name()));
+        request.getMessages().addAll(0,promptSettings.readAll()
+                .stream()
+                .peek(prompt-> prompt.setContent(prompt.getContent().replaceAll("\\$\\{time}",DateUtil.now() +" "+ DateUtil.thisDayOfWeekEnum().name())))
+                .collect(Collectors.toList()));
+        request.getMessages().add(ChatMessage.systemPrompt(search_fun_prompt));
     }
 }
