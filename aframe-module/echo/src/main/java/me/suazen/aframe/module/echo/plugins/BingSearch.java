@@ -72,7 +72,7 @@ public class BingSearch implements IPlugin {
     @Override
     public MetaInfo metaInfo(String param) {
         return MetaInfo.builder()
-                .avatar("/src/assets/image/bing.png")
+                .avatar("/image/bing.png")
                 .name("Bing Search")
                 .description(String.format("Bing搜索：%s",getQueryString(param)))
                 .build();
