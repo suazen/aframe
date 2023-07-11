@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.plugins;
+package me.suazen.aframe.module.echo.openai.plugins;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpUtil;
@@ -8,9 +8,9 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
-import me.suazen.aframe.module.echo.plugins.base.IPlugin;
-import me.suazen.aframe.module.echo.plugins.base.MetaInfo;
-import me.suazen.aframe.module.echo.plugins.exception.BasePluginException;
+import me.suazen.aframe.module.echo.openai.plugins.base.IPlugin;
+import me.suazen.aframe.module.echo.openai.plugins.base.MetaInfo;
+import me.suazen.aframe.module.echo.openai.plugins.exception.BasePluginException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

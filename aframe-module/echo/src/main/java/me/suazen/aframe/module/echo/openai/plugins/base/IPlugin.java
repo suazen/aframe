@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.plugins.base;
+package me.suazen.aframe.module.echo.openai.plugins.base;
 
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 

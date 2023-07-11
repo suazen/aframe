@@ -28,6 +28,9 @@ public class RedisIdGenerator implements IdentifierGenerator {
                 .findFirst()
                 .orElseThrow(()->new BusinessException("类"+entity.getClass().getName()+"未配置TableId注解"))
                 .getName();
+        if ("id".equalsIgnoreCase(bizKey)){
+            bizKey = entity.getClass().getSimpleName()+"_"+bizKey;
+        }
         //根据bizKey调用分布式ID生成
         RIdGenerator idGenerator = redissonClient.getIdGenerator("seq:"+bizKey);
         idGenerator.tryInit(1,1);

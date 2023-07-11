@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.plugins.base;
+package me.suazen.aframe.module.echo.openai.plugins.base;
 
 import lombok.Builder;
 import lombok.Getter;

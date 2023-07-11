@@ -1,5 +1,6 @@
 package me.suazen.aframe.module.echo.openai.service;
 
+import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -10,4 +11,5 @@ public interface OpenaiService {
 
     SseEmitter reGenerate(String uuid,int index);
 
+    List<ChatMessage> queryHisMessages(String uuid);
 }

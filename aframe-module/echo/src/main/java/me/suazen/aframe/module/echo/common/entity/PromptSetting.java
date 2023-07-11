@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * @author sujizhen
  * @date 2023-06-28
@@ -13,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("prompt_setting")
-public class PromptSetting {
+public class PromptSetting implements Serializable {
     /**
      * 序号
      */
@@ -34,4 +36,9 @@ public class PromptSetting {
      * 排序
      */
     private Integer sort;
+
+    /**
+     * 插入位置
+     */
+    private String pos;
 }

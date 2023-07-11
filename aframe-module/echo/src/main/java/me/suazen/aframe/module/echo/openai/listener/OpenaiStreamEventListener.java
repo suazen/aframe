@@ -1,17 +1,17 @@
-package me.suazen.aframe.module.echo.openai.handler;
+package me.suazen.aframe.module.echo.openai.listener;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.knuddels.jtokkit.api.Encoding;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.exception.BaseException;
 import me.suazen.aframe.core.exception.BusinessException;
-import me.suazen.aframe.module.echo.common.dto.ChatMessage;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
-import me.suazen.aframe.module.echo.plugins.base.IPlugin;
-import me.suazen.aframe.module.echo.plugins.exception.BasePluginException;
+import me.suazen.aframe.module.echo.openai.plugins.base.IPlugin;
+import me.suazen.aframe.module.echo.openai.plugins.exception.BasePluginException;
 import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author sujizhen
@@ -36,9 +36,11 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     private boolean functionCall = false;
 
+    private final AtomicInteger tokens;
 
-    public OpenaiStreamEventListener(SseEmitter sseEmitter){
+    public OpenaiStreamEventListener(SseEmitter sseEmitter, AtomicInteger tokens){
         this.sseEmitter = sseEmitter;
+        this.tokens = tokens;
         contentBuilder = new StringBuilder();
     }
 
@@ -55,23 +57,22 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     @Override
     public void onClosed(@NotNull EventSource eventSource) {
+        tokens.addAndGet(SpringUtil.getBean(Encoding.class).countTokens(this.contentBuilder.toString()));
         if (functionCall){
-            log.info("调用插件==》{}",this.contentBuilder);
-            JSONObject funcInfo = JSON.parseObject(this.contentBuilder.substring(2));
-            initListener();
-            String funName = funcInfo.getString("action");
-            IPlugin plugin = SpringUtil.getBean(funName+"_PLUGIN", IPlugin.class);
             try {
+                log.info("调用插件==》{}",this.contentBuilder);
+                JSONObject funcInfo = JSON.parseObject(this.contentBuilder.substring(2));
+                initListener();
+                String funName = funcInfo.getString("action");
+                IPlugin plugin = SpringUtil.getBean(funName+"_PLUGIN", IPlugin.class);
                 JSONObject meta = new JSONObject();
                 meta.put("metaInfo",plugin.metaInfo(funcInfo.getString("param")));
                 this.sseEmitter.send(meta.toString());
-            } catch (IOException e) {
-                log.error("输出流失败",e);
+                AzureOpenaiUtil.callStream(false,tokens,new ChatRequest().setTemperature(0).setMessages(plugin.run(funcInfo.getString("param"))),this);
+            } catch (Exception e){
                 this.contentBuilder = null;
                 this.sseEmitter.completeWithError(new BasePluginException("插件调用失败了T^T"));
-                return;
             }
-            this.onFunctionCall(plugin.run(funcInfo.getString("param")));
         }else {
             this.sseEmitter.complete();
             this.onComplete();
@@ -133,7 +134,4 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     public abstract void onComplete();
 
-    public void onFunctionCall(List<ChatMessage> messages){
-        AzureOpenaiUtil.callStream(false,new ChatRequest().setTemperature(0).setMessages(messages),this);
-    };
 }

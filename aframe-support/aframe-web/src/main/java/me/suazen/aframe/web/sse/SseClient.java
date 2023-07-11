@@ -54,6 +54,7 @@ public class SseClient {
     }
 
     public void execute(EventSourceListener listener){
+        log.info(this.body);
         Request request = new Request.Builder()
                 .url(this.url)
                 .header("Connection", "Keep-Alive")

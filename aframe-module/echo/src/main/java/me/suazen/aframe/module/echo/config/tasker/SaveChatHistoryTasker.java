@@ -16,15 +16,13 @@ import java.util.TimerTask;
  * @date 2023-06-21
  **/
 @AllArgsConstructor
-
 public class SaveChatHistoryTasker extends TimerTask {
-    private static final EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
-
     private final String userId;
     private final String conversationId;
     private final String role;
     private final String content;
     private final int index;
+    private final int tokens;
 
     @Override
     public void run() {
@@ -35,7 +33,7 @@ public class SaveChatHistoryTasker extends TimerTask {
         chatHis.setContent(content);
         chatHis.setConversationId(conversationId);
         chatHis.setChatIndex(index);
-        chatHis.setTokens(registry.getEncodingForModel(ModelType.GPT_3_5_TURBO).countTokens(content));
+        chatHis.setTokens(tokens);
         SpringUtil.getBean(ChatHisMapper.class).insert(chatHis);
     }
 }

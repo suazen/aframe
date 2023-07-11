@@ -34,3 +34,5 @@ plugin:
   bing:
     api-key: 7eb364e7cf3c403996b736c95b8d6143
     end-point: https://api.bing.microsoft.com
+  weather:
+    api-key: SyyQeZAxMVSLslQtc

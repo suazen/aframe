@@ -1,4 +1,4 @@
-package me.suazen.aframe.module.echo.plugins.exception;
+package me.suazen.aframe.module.echo.openai.plugins.exception;
 
 import me.suazen.aframe.core.exception.BaseException;
 

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.module.echo.openai.dto.ChatDTO;
 import me.suazen.aframe.module.echo.openai.service.OpenaiService;
+import me.suazen.aframe.web.domain.AjaxResult;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -50,5 +51,13 @@ public class OpenaiController {
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .headers(httpHeaders)
                 .body(openaiService.reGenerate(uuid, index));
+    }
+
+    @GetMapping("/queryHisMessages")
+    public AjaxResult queryHisMessages(String uuid){
+        if (StrUtil.isEmpty(uuid)){
+            throw new BusinessException("uuid不能为空");
+        }
+        return AjaxResult.success(openaiService.queryHisMessages(uuid));
     }
 }
