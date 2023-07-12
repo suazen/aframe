@@ -48,7 +48,7 @@ public class BingSearch implements IPlugin {
                 .body();
         try {
             List<ChatMessage> messages = new ArrayList<>();
-            messages.add(ChatMessage.systemPrompt("Answer the question according to the search result. Respond using markdown in Chinese. Post the related links format like [{title}]({url})."));
+            messages.add(ChatMessage.systemPrompt("Answer the question according to the search result. Respond using markdown in Chinese. Post the related links format like [title](url)."));
             JSONObject resJson = JSON.parseObject(response);
             if (!resJson.containsKey("webPages")){
                 return Collections.emptyList();

@@ -22,7 +22,7 @@ public class ChatMessage implements Serializable {
         return new ChatMessage("assistant",content);
     }
 
-    public static ChatMessage systemPrompt(String content,Object... value){
-        return new ChatMessage("system",String.format(content,value));
+    public static ChatMessage systemPrompt(String content){
+        return new ChatMessage("system",content);
     }
 }
