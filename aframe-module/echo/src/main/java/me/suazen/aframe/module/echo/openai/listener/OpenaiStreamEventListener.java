@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.knuddels.jtokkit.api.Encoding;
 import lombok.extern.slf4j.Slf4j;
-import me.suazen.aframe.core.exception.BaseException;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.module.echo.common.dto.ChatRequest;
 import me.suazen.aframe.module.echo.common.dto.GptStreamResponse;
@@ -38,6 +37,8 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     private final AtomicInteger tokens;
 
+    private boolean streamed = false;
+
     public OpenaiStreamEventListener(SseEmitter sseEmitter, AtomicInteger tokens){
         this.sseEmitter = sseEmitter;
         this.tokens = tokens;
@@ -61,17 +62,16 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
         if (functionCall){
             try {
                 log.info("调用插件==》{}",this.contentBuilder);
-                JSONObject funcInfo = JSON.parseObject(this.contentBuilder.substring(2));
+                JSONObject funcInfo = JSON.parseObject(this.contentBuilder.substring(2,this.contentBuilder.lastIndexOf("}")+1));
                 initListener();
                 String funName = funcInfo.getString("action");
                 IPlugin plugin = SpringUtil.getBean(funName+"_PLUGIN", IPlugin.class);
                 JSONObject meta = new JSONObject();
                 meta.put("metaInfo",plugin.metaInfo(funcInfo.getString("param")));
-                this.sseEmitter.send(meta.toString());
+                send(meta.toString());
                 AzureOpenaiUtil.callStream(false,tokens,new ChatRequest().setTemperature(0).setMessages(plugin.run(funcInfo.getString("param"))),this);
             } catch (Exception e){
-                this.contentBuilder = null;
-                this.sseEmitter.completeWithError(new BasePluginException("插件调用失败了T^T"));
+                sendError(new BasePluginException("插件调用失败了T^T",e));
             }
         }else {
             this.sseEmitter.complete();
@@ -81,22 +81,16 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     @Override
     public void onEvent(@NotNull EventSource eventSource, @Nullable String id, @Nullable String type, @NotNull String data) {
-        try {
-            GptStreamResponse streamRes = JSON.parseObject(data, GptStreamResponse.class);
-            JSONObject delta = streamRes.getChoices().stream().findFirst().orElse(new GptStreamResponse.Choice()).getDelta();
-            if (delta != null && delta.containsKey("content")) {
-                if (index == 0 && "$f".equals(delta.getString("content"))){
-                    functionCall = true;
-                }else if (!functionCall){
-                    sseEmitter.send(SseEmitter.event().data(delta.toString()));
-                }
-                contentBuilder.append(delta.getString("content"));
-                index++;
+        GptStreamResponse streamRes = JSON.parseObject(data, GptStreamResponse.class);
+        JSONObject delta = streamRes.getChoices().stream().findFirst().orElse(new GptStreamResponse.Choice()).getDelta();
+        if (delta != null && delta.containsKey("content")) {
+            if (index == 0 && "$f".equals(delta.getString("content"))){
+                functionCall = true;
+            }else if (!functionCall){
+                send(delta.toString());
             }
-        } catch (IOException e) {
-            log.error("输出流失败",e);
-            this.contentBuilder = null;
-            this.sseEmitter.completeWithError(new BaseException("机器人开小差了，请重试一下吧~"));
+            contentBuilder.append(delta.getString("content"));
+            index++;
         }
     }
 
@@ -124,7 +118,7 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
                 log.error("获取response.body失败", e);
             }
         }
-        this.sseEmitter.completeWithError(new BusinessException(msg));
+        sendError(new BusinessException(msg));
         eventSource.cancel();
     }
 
@@ -134,4 +128,29 @@ public abstract class OpenaiStreamEventListener extends EventSourceListener {
 
     public abstract void onComplete();
 
+    private void send(String text){
+        try {
+            this.sseEmitter.send(text);
+            streamed = true;
+        }catch (IOException e){
+            log.error("消息推送失败",e);
+            this.contentBuilder = null;
+            if (streamed){
+                this.sseEmitter.complete();
+            } else {
+                this.sseEmitter.completeWithError(new BusinessException("服务异常，请重试一下~"));
+            }
+        }
+    }
+
+    private void sendError(Throwable e){
+        log.error("消息服务异常",e);
+        this.contentBuilder = null;
+        if (streamed){
+            send(String.format("{\"error\":\"%s\"}",e.getMessage()));
+            this.sseEmitter.complete();
+        } else {
+            this.sseEmitter.completeWithError(new BusinessException("服务异常，请重试一下~"));
+        }
+    }
 }

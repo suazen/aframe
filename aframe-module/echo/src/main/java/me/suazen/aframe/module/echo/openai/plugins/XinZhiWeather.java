@@ -1,5 +1,6 @@
 package me.suazen.aframe.module.echo.openai.plugins;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -31,9 +32,9 @@ public class XinZhiWeather implements IPlugin {
                 .execute()
                 .body();
         List<ChatMessage> messages = new ArrayList<>();
-        messages.add(ChatMessage.systemPrompt("Answer my question according to the json. Respond in Chinese. Current time: "+ DateUtil.now()));
-        messages.add(ChatMessage.systemPrompt(response));
-        messages.add(ChatMessage.userMsg(JSON.parseObject(param).getString("question")));
+        messages.add(ChatMessage.systemPrompt("Answer the question according to the weather info. Respond in Chinese. Current time: "+ DateUtil.now()));
+        messages.add(ChatMessage.systemPrompt("Weather Info: "+response));
+        messages.add(ChatMessage.userMsg(StrUtil.blankToDefault(JSON.parseObject(param).getString("question"),location+"的天气怎么样？")));
         return messages;
     }
 

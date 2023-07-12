@@ -20,11 +20,11 @@ public class OkHttpConfig {
     @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient.Builder()
-                .retryOnConnectionFailure(false)//是否开启缓存
+                .retryOnConnectionFailure(true)
                 .connectionPool(pool())//连接池
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(50, TimeUnit.SECONDS)
-                .readTimeout(50, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
                 .build();
     }
 }

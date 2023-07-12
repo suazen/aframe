@@ -48,9 +48,7 @@ public class BingSearch implements IPlugin {
                 .body();
         try {
             List<ChatMessage> messages = new ArrayList<>();
-            messages.add(ChatMessage.systemPrompt("You are an AI assistant that helps people find information. Respond using markdown. Post the relate links after the information."));
-            messages.add(ChatMessage.userMsg("搜索"+query));
-            messages.add(ChatMessage.botMsg("I need you provide the result of search engine to get summary"));
+            messages.add(ChatMessage.systemPrompt("Answer the question according to the search result. Respond using markdown in Chinese. Post the related links format like [{title}]({url})."));
             JSONObject resJson = JSON.parseObject(response);
             if (!resJson.containsKey("webPages")){
                 return Collections.emptyList();
@@ -62,7 +60,8 @@ public class BingSearch implements IPlugin {
                     .stream()
                     .map(obj-> BeanUtil.toBean(obj, SearchResult.class))
                     .collect(Collectors.toList());
-            messages.add(ChatMessage.userMsg(JSON.toJSONString(results)));
+            messages.add(ChatMessage.systemPrompt(JSON.toJSONString(results)));
+            messages.add(ChatMessage.userMsg("搜索: "+query));
             return messages;
         }catch (JSONException e){
             throw new BasePluginException("调用必应搜索插件失败",e);

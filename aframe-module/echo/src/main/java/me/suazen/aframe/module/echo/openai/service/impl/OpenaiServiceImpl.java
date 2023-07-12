@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.suazen.aframe.core.exception.BusinessException;
 import me.suazen.aframe.core.manager.AsyncManager;
+import me.suazen.aframe.core.mybatisplus.WrapperUtil;
 import me.suazen.aframe.core.util.DateUtil;
 import me.suazen.aframe.module.echo.common.constants.RedisKey;
 import me.suazen.aframe.module.echo.common.dto.ChatMessage;
@@ -12,6 +13,7 @@ import me.suazen.aframe.module.echo.common.entity.ChatHis;
 import me.suazen.aframe.module.echo.common.entity.Member;
 import me.suazen.aframe.module.echo.common.entity.UsageDetail;
 import me.suazen.aframe.module.echo.common.exception.UsageLimitException;
+import me.suazen.aframe.module.echo.common.mapper.ChatHisMapper;
 import me.suazen.aframe.module.echo.common.util.AzureOpenaiUtil;
 import me.suazen.aframe.module.echo.common.util.StpWxUtil;
 import me.suazen.aframe.module.echo.config.tasker.SaveChatHistoryTasker;
@@ -23,7 +25,6 @@ import me.suazen.aframe.module.echo.openai.service.OpenaiService;
 import me.suazen.aframe.web.sse.SseServer;
 import okhttp3.Response;
 import okhttp3.sse.EventSource;
-import org.jetbrains.annotations.NotNull;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -111,9 +113,9 @@ public class OpenaiServiceImpl implements OpenaiService {
     private RList<ChatMessage> getChatMessages(String uuid){
         RList<ChatMessage> redisList = redissonClient.getList(RedisKey.Folder.openai_chat_his.key(uuid));
         if (redisList.isEmpty()){
-            List<ChatHis> chatHisList = new ChatHis()
-                    .conversationId().eq(uuid)
-                    .chatIndex().orderByAsc()
+            List<ChatHis> chatHisList = WrapperUtil.builder(ChatHisMapper.class).lambdaQuery()
+                    .inSql(ChatHis::getChatHisId,String.format("select max(chat_his_id) from chat_his where conversation_id = '%s' group by chat_index",uuid))
+                    .orderByAsc(ChatHis::getChatIndex)
                     .list();
             redisList.addAll(chatHisList.stream().map(chatHis -> new ChatMessage(chatHis.getRole(),chatHis.getContent())).collect(Collectors.toList()));
         }
